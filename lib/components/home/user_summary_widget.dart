@@ -40,11 +40,22 @@ class UserSummaryWidget extends StatelessWidget {
                 ),
               ],
             ),
-            Column(
+            Row(
               children: [
-                const Text('Streak',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('$streak days'),
+                Column(
+                  children: [
+                    const Text('Streak',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text('$streak days'),
+                  ],
+                ),
+                SizedBox(width: 20),
+                IconButton(
+                  icon: const Icon(Icons.list),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/log');
+                  },
+                ),
               ],
             ),
           ],

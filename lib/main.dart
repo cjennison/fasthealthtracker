@@ -1,4 +1,8 @@
+import 'package:fasthealthcheck/components/exercise/exercise_input_view.dart';
+import 'package:fasthealthcheck/components/food/food_input_view.dart';
 import 'package:fasthealthcheck/components/home/home_view.dart';
+import 'package:fasthealthcheck/components/log/activity_log_view.dart';
+import 'package:fasthealthcheck/services/wellness_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +13,7 @@ void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => OnboardingController()),
+      ChangeNotifierProvider(create: (context) => WellnessService()),
     ],
     child: const MyApp(),
   ));
@@ -30,6 +35,9 @@ class MyApp extends StatelessWidget {
         routes: {
           '/onboarding': (context) => const OnboardingView(),
           '/app': (context) => const HomeView(),
+          '/food': (context) => const FoodInputView(),
+          '/exercise': (context) => const ExerciseInputView(),
+          '/log': (context) => const ActivityLogView(), // New route
         },
         onUnknownRoute: (settings) => MaterialPageRoute(
               builder: (context) => Scaffold(
