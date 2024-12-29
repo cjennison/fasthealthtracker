@@ -1,3 +1,5 @@
+import 'package:fasthealthcheck/components/home/profile_view.dart';
+import 'package:fasthealthcheck/components/splash_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,7 +9,7 @@ import 'package:fasthealthcheck/components/home/home_view.dart';
 import 'package:fasthealthcheck/components/log/activity_log_view.dart';
 import 'package:fasthealthcheck/services/wellness_service.dart';
 import 'package:fasthealthcheck/services/user_service.dart';
-import 'package:fasthealthcheck/startup.dart';
+import 'package:fasthealthcheck/components/startup.dart';
 
 import 'package:fasthealthcheck/components/onboarding/onboarding_view.dart';
 import 'components/onboarding/onboarding_controller.dart';
@@ -30,7 +32,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter Demo',
+        title: 'QuickCalo',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
@@ -38,11 +40,13 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         home: StartupView(),
         routes: {
+          '/splash': (context) => const SplashView(),
           '/onboarding': (context) => const OnboardingView(),
           '/app': (context) => const HomeView(),
           '/food': (context) => const FoodInputView(),
           '/exercise': (context) => const ExerciseInputView(),
-          '/log': (context) => const ActivityLogView(), // New route
+          '/log': (context) => const ActivityLogView(),
+          '/profile': (context) => const ProfileView(),
         },
         onUnknownRoute: (settings) => MaterialPageRoute(
               builder: (context) => Scaffold(

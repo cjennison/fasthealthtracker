@@ -37,7 +37,7 @@ class _StartupViewState extends State<StartupView> {
     if (userService.currentUser != null) {
       Navigator.pushReplacementNamed(context, '/app');
     } else {
-      Navigator.pushReplacementNamed(context, '/onboarding');
+      Navigator.pushReplacementNamed(context, '/splash');
     }
   }
 
