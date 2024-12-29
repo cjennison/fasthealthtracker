@@ -1,6 +1,9 @@
 import 'package:fasthealthcheck/models/user.dart';
+import 'package:fasthealthcheck/services/user_service.dart';
+import 'package:fasthealthcheck/services/wellness_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class UserSummaryWidget extends StatelessWidget {
   final User user;
@@ -16,6 +19,14 @@ class UserSummaryWidget extends StatelessWidget {
     var photoUrl = null; // = user.photoUrl;
     OverlayState overlayState = Overlay.of(context);
     late OverlayEntry overlayEntry;
+
+    void onLogout() {
+      UserService().logout();
+      Provider.of<WellnessService>(context, listen: false).clearWellnessData();
+      Navigator.pushReplacementNamed(context, '/onboarding');
+      overlayEntry.remove();
+    }
+
     overlayEntry = OverlayEntry(
       builder: (context) {
         return Material(
@@ -80,11 +91,19 @@ class UserSummaryWidget extends StatelessWidget {
                       ),
                       const SizedBox(height: 30),
                       Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            overlayEntry.remove();
-                          },
-                          child: const Text('Close'),
+                        child: Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: onLogout,
+                              child: const Text('Logout'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                overlayEntry.remove();
+                              },
+                              child: const Text('Close'),
+                            ),
+                          ],
                         ),
                       ),
                     ],

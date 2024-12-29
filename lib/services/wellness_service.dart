@@ -152,4 +152,11 @@ class WellnessService extends ChangeNotifier {
     saveWellnessData();
     notifyListeners();
   }
+
+  void clearWellnessData() {
+    _glassesOfWater = 0;
+    foodEntries.clear();
+    exerciseEntries.clear();
+    notifyListeners();
+  }
 }

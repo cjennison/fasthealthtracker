@@ -52,4 +52,14 @@ class LocalStorageService {
       return null;
     }
   }
+
+  Future<void> clearWellnessData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('wellness');
+  }
+
+  Future<void> clearAllData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
 }

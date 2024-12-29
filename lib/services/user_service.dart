@@ -31,20 +31,8 @@ class UserService {
     await LocalStorageService().saveUser(user.toJson());
   }
 
-  void clearUser() {
+  void logout() {
     _currentUser = null;
-    LocalStorageService().clearUser();
-  }
-
-  // Mocked responses or additional methods can go here
-  Future<User> mockFetchUser() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
-    return User(
-      age: 30,
-      weight: 160,
-      username: "Mock User",
-      activityLevel: "active",
-    );
+    LocalStorageService().clearAllData();
   }
 }
