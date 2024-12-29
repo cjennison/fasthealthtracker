@@ -21,7 +21,7 @@ class _StartupViewState extends State<StartupView> {
 
   Future<void> initalizeApp() async {
     print('Initializing app...');
-    final userService = UserService();
+    final userService = Provider.of<UserService>(context, listen: false);
     await userService.initializeUser();
 
     final wellnessService =

@@ -22,7 +22,7 @@ class OnboardingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = UserService().currentUser;
+    final user = Provider.of<UserService>(context, listen: false).currentUser;
 
     // Redirect to /app if user data already exists
     if (user != null) {

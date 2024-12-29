@@ -1,7 +1,8 @@
 import 'package:fasthealthcheck/models/user.dart';
 import 'package:fasthealthcheck/services/local_storage_service.dart';
+import 'package:flutter/material.dart';
 
-class UserService {
+class UserService extends ChangeNotifier {
   static final UserService _instance = UserService._internal();
 
   factory UserService() {
@@ -23,12 +24,20 @@ class UserService {
         username: user['username'],
         activityLevel: user['activityLevel'],
       );
+      notifyListeners();
     }
   }
 
   void saveUser(User user) async {
     _currentUser = user;
     await LocalStorageService().saveUser(user.toJson());
+    notifyListeners();
+  }
+
+  void clearUser() {
+    _currentUser = null;
+    LocalStorageService().clearUser();
+    notifyListeners();
   }
 
   void logout() {

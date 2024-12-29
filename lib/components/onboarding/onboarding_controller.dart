@@ -2,6 +2,7 @@ import 'package:fasthealthcheck/models/user.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fasthealthcheck/services/user_service.dart';
+import 'package:provider/provider.dart';
 
 class OnboardingController extends ChangeNotifier {
   final GlobalKey<FormState> step1FormKey = GlobalKey<FormState>();
@@ -9,6 +10,10 @@ class OnboardingController extends ChangeNotifier {
 
   /// The activity level of the user
   String activityLevel = 'low';
+
+  int _defaultAge = 25;
+  double _defaultWeight = 150.0;
+  String _defaultUsername = '';
 
   int age = 25;
   double weight = 150.0;
@@ -45,7 +50,12 @@ class OnboardingController extends ChangeNotifier {
         activityLevel: activityLevel,
       );
 
-      UserService().saveUser(userInfo);
+      Provider.of<UserService>(context, listen: false).saveUser(userInfo);
+
+      // Reset the controller
+      username = _defaultUsername;
+      age = _defaultAge;
+      weight = _defaultWeight;
 
       Navigator.pushNamedAndRemoveUntil(
         context,

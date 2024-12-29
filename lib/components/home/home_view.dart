@@ -12,9 +12,9 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = UserService().currentUser;
+    final userService = Provider.of<UserService>(context);
 
-    if (user == null) {
+    if (userService.currentUser == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacementNamed(context, '/onboarding');
       });
@@ -41,9 +41,9 @@ class HomeView extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: user != null
+                  children: userService.currentUser != null
                       ? [
-                          UserSummaryWidget(user: user),
+                          UserSummaryWidget(user: userService.currentUser!),
                           SizedBox(height: 20),
                           Expanded(child: WellnessBars()),
                           /*

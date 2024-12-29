@@ -21,7 +21,7 @@ class UserSummaryWidget extends StatelessWidget {
     late OverlayEntry overlayEntry;
 
     void onLogout() {
-      UserService().logout();
+      Provider.of<UserService>(context, listen: false).logout();
       Provider.of<WellnessService>(context, listen: false).clearWellnessData();
       Navigator.pushReplacementNamed(context, '/onboarding');
       overlayEntry.remove();
