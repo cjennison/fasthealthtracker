@@ -44,7 +44,7 @@ class HomeButtonBar extends StatelessWidget {
               ? ElevatedButton.icon(
                   onPressed: onWaterTap,
                   icon: const Icon(Icons.local_drink),
-                  label: const Text('Water'),
+                  label: const Text('+ Water'),
                 )
               : ElevatedButton(
                   onPressed: onWaterTap,

@@ -30,7 +30,7 @@ class HomeView extends StatelessWidget {
     }
 
     void onWaterTap() {
-      Navigator.pushNamed(context, '/water');
+      Provider.of<WellnessService>(context, listen: false).addWater();
     }
 
     return Scaffold(body: LayoutBuilder(builder: (context, constraints) {

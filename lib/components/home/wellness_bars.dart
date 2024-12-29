@@ -37,6 +37,7 @@ class WellnessBars extends StatelessWidget {
               maxValue: wellnessService.exerciseGoal.toDouble(),
               color: Colors.blue,
             ),
+            _buildWaterIcons(context),
           ],
         );
       },
@@ -138,6 +139,78 @@ class WellnessBars extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildWaterIcons(BuildContext context) {
+    return Consumer<WellnessService>(
+      builder: (context, wellnessService, child) {
+        int totalGlasses = wellnessService.glassesOfWater;
+        int recommendedGlasses = WellnessService.recommendedGlassesOfWater;
+        int overflowGlasses = totalGlasses - recommendedGlasses;
+
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Glasses of Water',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: [
+                  // Render the recommended glasses
+                  ...List.generate(recommendedGlasses, (index) {
+                    bool isFilled = index < totalGlasses;
+                    return GestureDetector(
+                      onTap: isFilled
+                          ? () {
+                              Provider.of<WellnessService>(context,
+                                      listen: false)
+                                  .removeWater();
+                            }
+                          : null,
+                      child: CircleAvatar(
+                        backgroundColor:
+                            isFilled ? Colors.blue : Colors.grey[300],
+                        child: Icon(
+                          Icons.local_drink,
+                          color: isFilled ? Colors.white : Colors.blue,
+                        ),
+                      ),
+                    );
+                  }),
+                  // Render the overflow icon if there are extra glasses
+                  if (overflowGlasses > 0)
+                    GestureDetector(
+                      onTap: () {
+                        Provider.of<WellnessService>(context, listen: false)
+                            .removeWater();
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.green,
+                        child: Text(
+                          '+$overflowGlasses',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
