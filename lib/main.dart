@@ -3,6 +3,7 @@ import 'package:fasthealthcheck/components/food/food_input_view.dart';
 import 'package:fasthealthcheck/components/home/home_view.dart';
 import 'package:fasthealthcheck/components/log/activity_log_view.dart';
 import 'package:fasthealthcheck/services/wellness_service.dart';
+import 'package:fasthealthcheck/startup.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,8 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        initialRoute: '/onboarding',
+        initialRoute: '/',
+        home: StartupView(),
         routes: {
           '/onboarding': (context) => const OnboardingView(),
           '/app': (context) => const HomeView(),

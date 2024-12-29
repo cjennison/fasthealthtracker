@@ -104,7 +104,11 @@ class WellnessBars extends StatelessWidget {
                     return Column(
                       children: [
                         const SizedBox(height: 2),
-                        if ((index < 4 && index > 0) && notchValue > value)
+                        if ((index < 4 && index > 0) &&
+                            notchValue >
+                                (value +
+                                    value *
+                                        0.25)) // Random number I chose to prevent overlapping
                           Text(
                             notchValue.toInt().toString(),
                             style: TextStyle(

@@ -15,4 +15,13 @@ class User {
   String toString() {
     return 'User{age: $age, weight: $weight, name: $username, activityLevel: $activityLevel}';
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'age': age,
+      'weight': weight,
+      'username': username,
+      'activityLevel': activityLevel,
+    };
+  }
 }

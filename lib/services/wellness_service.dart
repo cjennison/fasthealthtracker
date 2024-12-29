@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/services/local_storage_service.dart';
 import 'package:flutter/material.dart';
 
 class FoodEntry {
@@ -27,53 +28,110 @@ class ExerciseEntry {
 }
 
 class WellnessService extends ChangeNotifier {
-  int _caloriesConsumed = 0;
-  int _exerciseBurned = 0;
-  int _dailyGlassesOfWater = 0;
+  int _glassesOfWater = 0;
 
   static const int recommendedGlassesOfWater = 8;
 
   final List<FoodEntry> foodEntries = [];
   final List<ExerciseEntry> exerciseEntries = [];
 
-  int get caloriesConsumed => _caloriesConsumed;
-  int get exerciseBurned => _exerciseBurned;
   int get exerciseGoal => 1000;
-  int get caloriesRemaining => 2000 - _caloriesConsumed + _exerciseBurned;
-  int get glassesOfWater => _dailyGlassesOfWater;
+  int get glassesOfWater => _glassesOfWater;
 
-  void addCalories(String foodName, String quantity, int calories) {
-    _caloriesConsumed += calories;
-    foodEntries
-        .add(FoodEntry(name: foodName, quantity: quantity, calories: calories));
+  int get caloriesConsumed =>
+      foodEntries.fold(0, (sum, entry) => sum + entry.calories);
+
+  int get exerciseBurned =>
+      exerciseEntries.fold(0, (sum, entry) => sum + entry.caloriesBurned);
+
+  int get caloriesRemaining {
+    final consumed = caloriesConsumed;
+    final burned = exerciseBurned;
+    return 2000 - consumed + burned;
+  }
+
+  /// dayWellnessData is a map with the following structure:
+  /// {
+  ///  foodEntries: List<Map<String, dynamic>>,
+  ///  exerciseEntries: List<Map<String, dynamic>>,
+  ///  _glassesOfWater: int,
+  /// }
+
+  Future<void> initializeWellnessData() async {
+    _glassesOfWater = 0;
+    foodEntries.clear();
+    exerciseEntries.clear();
+
+    final dayWellnessData = await LocalStorageService().fetchWellnessData();
+    if (dayWellnessData != null) {
+      _glassesOfWater = dayWellnessData['glassesOfWater'];
+      for (final foodEntry in dayWellnessData['foodEntries']) {
+        foodEntries.add(FoodEntry(
+          name: foodEntry['name'],
+          quantity: foodEntry['quantity'],
+          calories: foodEntry['calories'],
+        ));
+      }
+      for (final exerciseEntry in dayWellnessData['exerciseEntries']) {
+        exerciseEntries.add(ExerciseEntry(
+          name: exerciseEntry['name'],
+          type: exerciseEntry['type'],
+          intensity: exerciseEntry['intensity'],
+          caloriesBurned: exerciseEntry['caloriesBurned'],
+        ));
+      }
+    }
+
+    print(
+        "initialized data: glasses:$_glassesOfWater, $foodEntries, $exerciseEntries");
     notifyListeners();
   }
 
-  void _burnCalories(int calories) {
-    _exerciseBurned += calories;
+  Future<void> saveWellnessData() async {
+    final dayWellnessData = {
+      'foodEntries': foodEntries
+          .map((entry) => {
+                'name': entry.name,
+                'quantity': entry.quantity,
+                'calories': entry.calories,
+              })
+          .toList(),
+      'exerciseEntries': exerciseEntries
+          .map((entry) => {
+                'name': entry.name,
+                'type': entry.type,
+                'intensity': entry.intensity,
+                'caloriesBurned': entry.caloriesBurned,
+              })
+          .toList(),
+      'glassesOfWater': _glassesOfWater,
+    };
+
+    LocalStorageService().saveWellnessData(dayWellnessData);
+  }
+
+  void addCalories(String foodName, String quantity, int calories) {
+    foodEntries
+        .add(FoodEntry(name: foodName, quantity: quantity, calories: calories));
+    saveWellnessData();
     notifyListeners();
   }
 
   void addWater() {
-    _dailyGlassesOfWater++;
+    _glassesOfWater++;
+    saveWellnessData();
     notifyListeners();
   }
 
   void removeWater() {
-    _dailyGlassesOfWater--;
-    notifyListeners();
-  }
-
-  void resetForToday() {
-    _caloriesConsumed = 0;
-    _exerciseBurned = 0;
+    _glassesOfWater--;
+    saveWellnessData();
     notifyListeners();
   }
 
   void deleteFoodEntryByIndex(int index) {
-    final foodEntry = foodEntries[index];
-    _caloriesConsumed -= foodEntry.calories;
     foodEntries.removeAt(index);
+    saveWellnessData();
     notifyListeners();
   }
 
@@ -85,14 +143,13 @@ class WellnessService extends ChangeNotifier {
       intensity: intensity,
       caloriesBurned: caloriesBurned,
     ));
-    _burnCalories(caloriesBurned);
+    saveWellnessData();
     notifyListeners();
   }
 
   void deleteExerciseEntryByIndex(int index) {
-    final exerciseEntry = exerciseEntries[index];
-    _exerciseBurned -= exerciseEntry.caloriesBurned;
     exerciseEntries.removeAt(index);
+    saveWellnessData();
     notifyListeners();
   }
 }

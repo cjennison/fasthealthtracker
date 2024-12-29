@@ -1,4 +1,3 @@
-import 'package:fasthealthcheck/components/home/health_charts.dart';
 import 'package:fasthealthcheck/components/home/home_button_bar.dart';
 import 'package:fasthealthcheck/components/home/user_summary_widget.dart';
 import 'package:fasthealthcheck/components/home/wellness_bars.dart';
