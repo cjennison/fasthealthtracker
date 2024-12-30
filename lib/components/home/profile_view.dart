@@ -113,20 +113,26 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                   const SizedBox(height: 20),
                   const Text('Weight (lbs):', style: TextStyle(fontSize: 18)),
-                  Slider(
-                    value: weight,
-                    min: 40,
-                    max: 400,
-                    divisions: 360,
-                    label: weight.toStringAsFixed(1),
-                    onChanged: (value) {
-                      setState(() {
-                        weight = value;
-                      });
-                    },
+                  Row(
+                    children: [
+                      Text('${weight.toStringAsFixed(1)} lbs',
+                          style: const TextStyle(fontSize: 16)),
+                      Expanded(
+                        child: Slider(
+                          value: weight,
+                          min: 40,
+                          max: 400,
+                          divisions: 360,
+                          label: weight.toStringAsFixed(1),
+                          onChanged: (value) {
+                            setState(() {
+                              weight = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  Text('${weight.toStringAsFixed(1)} lbs',
-                      style: const TextStyle(fontSize: 16)),
                 ],
               )
             else
@@ -144,7 +150,8 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ],
               ),
-            const Spacer(),
+            //  const Spacer(),
+            SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: isEditing

@@ -18,12 +18,7 @@ class UserService extends ChangeNotifier {
   Future<void> initializeUser() async {
     final user = await LocalStorageService().fetchUser();
     if (user != null) {
-      _currentUser = User(
-        age: user['age'],
-        weight: user['weight'],
-        username: user['username'],
-        activityLevel: user['activityLevel'],
-      );
+      _currentUser = User.fromJson(user);
       notifyListeners();
     }
   }

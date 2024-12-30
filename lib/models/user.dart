@@ -24,6 +24,17 @@ class User {
       'weight': weight,
       'username': username,
       'activityLevel': activityLevel,
+      if (photoUrl != null) 'photoUrl': photoUrl,
     };
+  }
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      age: json['age'] as int,
+      weight: (json['weight'] as num).toDouble(),
+      username: json['username'] as String,
+      activityLevel: json['activityLevel'] as String,
+      photoUrl: json['photoUrl'] as String?, // Safely handle nullable photoUrl
+    );
   }
 }

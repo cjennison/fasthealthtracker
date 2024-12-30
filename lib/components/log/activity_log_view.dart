@@ -22,8 +22,10 @@ class ActivityLogView extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Consumer<WellnessService>(
               builder: (context, wellnessService, child) {
-                final foodEntries = wellnessService.foodEntries;
-                final exerciseEntries = wellnessService.exerciseEntries;
+                final foodEntries =
+                    wellnessService.todayWellnessData.foodEntries;
+                final exerciseEntries =
+                    wellnessService.todayWellnessData.exerciseEntries;
 
                 if (foodEntries.isEmpty && exerciseEntries.isEmpty) {
                   return const Center(

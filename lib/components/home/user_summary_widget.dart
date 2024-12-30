@@ -14,8 +14,8 @@ class UserSummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var photoUrl = null;
     String formattedDate = DateFormat.yMMMMd().format(DateTime.now());
+    User currentUser = user;
 
     return Column(
       children: [
@@ -28,13 +28,14 @@ class UserSummaryWidget extends StatelessWidget {
               },
               child: Row(
                 children: [
-                  photoUrl == null
+                  currentUser.photoUrl == null
                       ? const CircleAvatar(
                           radius: 24,
                           child: Icon(Icons.person),
                         )
                       : CircleAvatar(
-                          backgroundImage: NetworkImage(photoUrl),
+                          backgroundImage:
+                              NetworkImage(currentUser.photoUrl ?? ''),
                           radius: 24,
                         ),
                   const SizedBox(width: 10),

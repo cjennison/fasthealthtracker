@@ -11,9 +11,9 @@ class OnboardingController extends ChangeNotifier {
   /// The activity level of the user
   String activityLevel = 'low';
 
-  int _defaultAge = 25;
-  double _defaultWeight = 150.0;
-  String _defaultUsername = '';
+  final int _defaultAge = 25;
+  final double _defaultWeight = 150.0;
+  final String _defaultUsername = '';
 
   int age = 25;
   double weight = 150.0;
