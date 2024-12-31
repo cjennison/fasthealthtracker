@@ -1,6 +1,8 @@
 import 'package:fasthealthcheck/models/user.dart';
+import 'package:fasthealthcheck/services/wellness_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class UserSummaryWidget extends StatelessWidget {
   final User user;
@@ -10,12 +12,11 @@ class UserSummaryWidget extends StatelessWidget {
     required this.user,
   });
 
-  final int streak = 7;
-
   @override
   Widget build(BuildContext context) {
     String formattedDate = DateFormat.yMMMMd().format(DateTime.now());
     User currentUser = user;
+    int streak = Provider.of<WellnessService>(context).currentStreak;
 
     return Column(
       children: [
@@ -52,7 +53,7 @@ class UserSummaryWidget extends StatelessWidget {
                   children: [
                     const Text('Streak',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text('$streak days'),
+                    Text('$streak day${streak > 1 ? 's' : ''}'),
                   ],
                 ),
                 SizedBox(width: 20),

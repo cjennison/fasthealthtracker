@@ -114,6 +114,26 @@ class WellnessService extends ChangeNotifier {
     return 2000 - consumed + burned;
   }
 
+  int get currentStreak {
+    int streak = 0;
+    final today = DateTime.now();
+
+    // For all keys in the wellness data, see how many they are such that they are consecutive days
+    // starting from today
+    for (int i = 0; i < 365; i++) {
+      final date = today.subtract(Duration(days: i));
+      final formattedDate =
+          DateTime(date.year, date.month, date.day).toString();
+      if (_wellnessData.containsKey(formattedDate)) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
+
   /// dayWellnessData is a map with the following structure:
   /// {
   ///  foodEntries: List<Map<String, dynamic>>,
