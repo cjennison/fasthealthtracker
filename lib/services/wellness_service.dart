@@ -73,9 +73,18 @@ class WellnessService extends ChangeNotifier {
 
   String get currentDate => formattedToday.toString();
 
-  // Each getting gets the values below for the current date in the wellnessData map
-  DateWellnessData get todayWellnessData => _wellnessData[currentDate]!;
+  DateWellnessData get todayWellnessData {
+    final dayWellnessData = _wellnessData[currentDate];
+    if (dayWellnessData == null) {
+      getOrCreateDateWellnessData(today);
+      return _wellnessData[currentDate]!;
+    }
+    return dayWellnessData;
+  }
+
   int get exerciseGoal => 1000;
+
+  // Each getting gets the values below for the current date in the wellnessData map
   int get glassesOfWater => () {
         final dayWellnessData = _wellnessData[currentDate];
         return dayWellnessData?.glassesOfWater ?? 0;

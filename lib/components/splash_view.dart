@@ -53,7 +53,9 @@ class SplashView extends StatelessWidget {
                           style: TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                         ElevatedButton(
-                          onPressed: null, // Disabled button
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/login');
+                          }, // Disabled button
                           child: const Text('Log In'),
                         ),
                       ],

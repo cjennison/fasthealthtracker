@@ -21,8 +21,8 @@ class _ProfileViewState extends State<ProfileView> {
     super.initState();
     final user = Provider.of<UserService>(context, listen: false).currentUser;
     if (user != null) {
-      age = user.age;
-      weight = user.weight;
+      age = user.age!;
+      weight = user.weight!;
     } else {
       print("User is null");
     }

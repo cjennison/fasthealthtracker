@@ -35,6 +35,29 @@ class UserService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<User> registerUser({
+    required String username,
+    required String password,
+  }) async {
+    // Placeholder for future functionality to call API to register a user
+    debugPrint("Register function called");
+
+    // Return the confirmed new user (without password)
+    return User(
+      username: username,
+
+      // default values for new user
+      age: 25,
+      weight: 150.0,
+      activityLevel: 'medium',
+    );
+  }
+
+  void login() {
+    // Placeholder for future functionality
+    debugPrint("Login function called");
+  }
+
   void logout() {
     _currentUser = null;
     LocalStorageService().clearAllData();
