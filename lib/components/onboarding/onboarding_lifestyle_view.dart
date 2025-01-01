@@ -77,14 +77,9 @@ class _OnboardingLifestyleViewState extends State<OnboardingLifestyleView> {
 
   void _submitDetails() {
     final userService = Provider.of<UserService>(context, listen: false);
-    userService.saveUser(
-      User(
-        age: _age,
-        weight: _weight,
-        activityLevel: _activityLevel,
-        username: widget.newUser.username,
-      ),
-    );
+
+    // TODO - Save user profile details in API
+
     Navigator.pushNamedAndRemoveUntil(context, '/app', (route) => false);
   }
 }

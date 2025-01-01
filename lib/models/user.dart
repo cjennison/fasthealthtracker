@@ -1,40 +1,60 @@
-class User {
+class UserProfile {
+  String id;
   int age;
   double weight;
-  String username;
   String activityLevel;
-  String? photoUrl;
 
-  User({
+  UserProfile({
+    required this.id,
     required this.age,
     required this.weight,
-    required this.username,
     required this.activityLevel,
+  });
+}
+
+class User {
+  String id;
+  String email;
+  String username;
+  String? photoUrl;
+  UserProfile? userProfile;
+
+  User({
+    required this.id,
+    required this.email,
+    required this.username,
     this.photoUrl,
+    this.userProfile,
   });
 
   @override
   String toString() {
-    return 'User{age: $age, weight: $weight, name: $username, activityLevel: $activityLevel, photoUrl: $photoUrl}';
+    return 'User{email: $email, username: $username, photoUrl: $photoUrl}';
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'age': age,
-      'weight': weight,
+      'age': userProfile?.age,
+      'weight': userProfile?.weight,
       'username': username,
-      'activityLevel': activityLevel,
+      'activityLevel': userProfile?.activityLevel,
       if (photoUrl != null) 'photoUrl': photoUrl,
     };
   }
 
   factory User.fromJson(Map<String, dynamic> json) {
+    // json is guaranteed to have 'id', 'username', and 'email' keys as well as userProfile object
     return User(
-      age: json['age'] as int,
-      weight: (json['weight'] as num).toDouble(),
+      id: json['id'] as String,
       username: json['username'] as String,
-      activityLevel: json['activityLevel'] as String,
       photoUrl: json['photoUrl'] as String?, // Safely handle nullable photoUrl
+      email: json['email'] as String,
+      userProfile: UserProfile(
+        id: json['userProfile']['id'] as String,
+        age: json['userProfile']['age'] as int,
+        weight: (json['userProfile']['weight'] as num).toDouble(),
+        activityLevel: json['userProfile']['activityLevel'] as String,
+      ),
     );
   }
 }

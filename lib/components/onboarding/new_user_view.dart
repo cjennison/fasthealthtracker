@@ -14,6 +14,7 @@ class NewUserView extends StatefulWidget {
 class _NewUserViewState extends State<NewUserView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isRegistering = false;
 
@@ -32,11 +33,25 @@ class _NewUserViewState extends State<NewUserView> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  "Create a Username and Password",
+                  "Enter your details to get started",
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 20),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _usernameController,
                   decoration: const InputDecoration(
@@ -88,6 +103,7 @@ class _NewUserViewState extends State<NewUserView> {
 
       final userService = Provider.of<UserService>(context, listen: false);
       User newUser = await userService.registerUser(
+        email: _emailController.text,
         username: _usernameController.text,
         password: _passwordController.text,
       );

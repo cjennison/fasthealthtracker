@@ -16,7 +16,7 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    final TextEditingController usernameController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
 
     return Scaffold(
@@ -42,14 +42,14 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
-                    controller: usernameController,
+                    controller: emailController,
                     decoration: const InputDecoration(
-                      labelText: "Username",
+                      labelText: "Email",
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a username';
+                        return 'Please enter your email';
                       }
                       return null;
                     },
@@ -88,7 +88,11 @@ class _LoginViewState extends State<LoginView> {
                       if (formKey.currentState!.validate()) {
                         final userService =
                             Provider.of<UserService>(context, listen: false);
-                        userService.login();
+                        userService.login(
+                          context,
+                          emailController.text,
+                          passwordController.text,
+                        );
                         setState(() {
                           isLoggingIn = true;
                         });

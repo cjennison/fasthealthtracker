@@ -21,8 +21,8 @@ class _ProfileViewState extends State<ProfileView> {
     super.initState();
     final user = Provider.of<UserService>(context, listen: false).currentUser;
     if (user != null) {
-      age = user.age!;
-      weight = user.weight!;
+      age = user.userProfile!.age;
+      weight = user.userProfile!.weight;
     } else {
       print("User is null");
     }
@@ -39,14 +39,7 @@ class _ProfileViewState extends State<ProfileView> {
     final currentUser = userService.currentUser;
 
     if (currentUser != null) {
-      userService.saveUser(
-        User(
-          username: currentUser.username,
-          age: age,
-          weight: weight,
-          activityLevel: currentUser.activityLevel,
-        ),
-      );
+      // TODO: Update user profile
     }
 
     setState(() {
@@ -140,12 +133,12 @@ class _ProfileViewState extends State<ProfileView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Age: ${user.age}',
+                    'Age: ${user.userProfile!.age}',
                     style: const TextStyle(fontSize: 18),
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Weight: ${user.weight} lbs',
+                    'Weight: ${user.userProfile!.weight} lbs',
                     style: const TextStyle(fontSize: 18),
                   ),
                 ],
