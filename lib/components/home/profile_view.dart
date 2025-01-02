@@ -39,7 +39,11 @@ class _ProfileViewState extends State<ProfileView> {
     final currentUser = userService.currentUser;
 
     if (currentUser != null) {
-      // TODO: Update user profile
+      UserProfile updatedProfile = currentUser.userProfile!.copyWith(
+        age: age,
+        weight: weight,
+      );
+      userService.updateUserProfile(currentUser.id, updatedProfile);
     }
 
     setState(() {

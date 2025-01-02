@@ -10,6 +10,30 @@ class UserProfile {
     required this.weight,
     required this.activityLevel,
   });
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'age': age,
+      'weight': weight,
+      'activityLevel': activityLevel,
+    };
+  }
+
+  UserProfile copyWith({
+    String? id,
+    int? age,
+    double? weight,
+    String? activityLevel,
+  }) {
+    return UserProfile(
+      id: id ?? this.id,
+      age: age ?? this.age,
+      weight: weight ?? this.weight,
+      activityLevel: activityLevel ?? this.activityLevel,
+    );
+  }
 }
 
 class User {
@@ -40,6 +64,22 @@ class User {
       'activityLevel': userProfile?.activityLevel,
       if (photoUrl != null) 'photoUrl': photoUrl,
     };
+  }
+
+  User copyWith({
+    String? id,
+    String? email,
+    String? username,
+    String? photoUrl,
+    UserProfile? userProfile,
+  }) {
+    return User(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      username: username ?? this.username,
+      photoUrl: photoUrl ?? this.photoUrl,
+      userProfile: userProfile ?? this.userProfile,
+    );
   }
 
   factory User.fromJson(Map<String, dynamic> json) {

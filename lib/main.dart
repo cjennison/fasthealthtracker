@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:fasthealthcheck/components/home/profile_view.dart';
 import 'package:fasthealthcheck/components/login_view.dart';
 import 'package:fasthealthcheck/components/onboarding/new_user_view.dart';
 import 'package:fasthealthcheck/components/splash_view.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
 import 'package:fasthealthcheck/components/exercise/exercise_input_view.dart';
 import 'package:fasthealthcheck/components/food/food_input_view.dart';
 import 'package:fasthealthcheck/components/home/home_view.dart';
@@ -13,7 +14,8 @@ import 'package:fasthealthcheck/services/wellness_service.dart';
 import 'package:fasthealthcheck/services/user_service.dart';
 import 'package:fasthealthcheck/components/startup.dart';
 
-void main() {
+void main() async {
+  await dotenv.load(fileName: ".env");
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => UserService()),

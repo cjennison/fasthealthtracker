@@ -118,3 +118,11 @@ Windows:
 ```bash
 flutter build windows
 ```
+
+### 5. Environment Variables
+
+Create a `.env` file in the root directory and add the following environment variables:
+
+```bash
+API_BASE_URL=http://localhost:3000
+```

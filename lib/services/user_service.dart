@@ -1,4 +1,5 @@
 import 'package:fasthealthcheck/models/user.dart';
+import 'package:fasthealthcheck/services/api/api_user_service.dart';
 import 'package:fasthealthcheck/services/api_service.dart';
 import 'package:fasthealthcheck/services/local_storage_service.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,20 @@ class UserService extends ChangeNotifier {
   void saveUser(User user) async {
     _currentUser = user;
     notifyListeners();
+  }
+
+  Future<void> updateUserProfile(String id, UserProfile userProfile) async {
+    // Create a new map of the User object with the updated userProfile
+    final updatedUser = _currentUser!.copyWith(userProfile: userProfile);
+
+    //  Optimistic save
+    saveUser(updatedUser);
+
+    try {
+      await ApiUserService().updateUserProfile(id, userProfile.toJson());
+    } catch (e) {
+      print("Error updating user profile: $e");
+    }
   }
 
   Future<User> registerUser({
