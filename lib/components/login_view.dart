@@ -19,6 +19,38 @@ class _LoginViewState extends State<LoginView> {
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
 
+    Future<void> _login() async {
+      if (isLoggingIn) {
+        return;
+      }
+      try {
+        if (formKey.currentState!.validate()) {
+          final userService = Provider.of<UserService>(context, listen: false);
+          await userService.login(
+            context,
+            emailController.text,
+            passwordController.text,
+          );
+          setState(() {
+            isLoggingIn = true;
+          });
+        }
+      } catch (e) {
+        print(e);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Invalid Email or Password. Please try again."),
+            backgroundColor: Colors.red,
+          ),
+        );
+
+        setState(() {
+          isLoggingIn = false;
+        });
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gesundr'),
@@ -51,6 +83,12 @@ class _LoginViewState extends State<LoginView> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
+                      final emailRegex = RegExp(
+                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                      );
+                      if (!emailRegex.hasMatch(value)) {
+                        return 'Please enter a valid email address.';
+                      }
                       return null;
                     },
                   ),
@@ -75,29 +113,14 @@ class _LoginViewState extends State<LoginView> {
                       }
                       return null;
                     },
+                    onFieldSubmitted: (value) => _login(),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                     ),
-                    onPressed: () {
-                      if (isLoggingIn) {
-                        return;
-                      }
-                      if (formKey.currentState!.validate()) {
-                        final userService =
-                            Provider.of<UserService>(context, listen: false);
-                        userService.login(
-                          context,
-                          emailController.text,
-                          passwordController.text,
-                        );
-                        setState(() {
-                          isLoggingIn = true;
-                        });
-                      }
-                    },
+                    onPressed: _login,
                     child: Container(
                       child: isLoggingIn
                           ? SizedBox(

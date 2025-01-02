@@ -25,50 +25,59 @@ class _OnboardingLifestyleViewState extends State<OnboardingLifestyleView> {
       appBar: AppBar(
         title: const Text('Tell us about yourself'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                initialValue: _age.toString(),
-                decoration: const InputDecoration(labelText: 'Age'),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  _age = int.tryParse(value) ?? _age;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                initialValue: _weight.toString(),
-                decoration: const InputDecoration(labelText: 'Weight (lbs)'),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  _weight = double.tryParse(value) ?? _weight;
-                },
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _activityLevel,
-                items: const [
-                  DropdownMenuItem(value: 'low', child: Text('Low')),
-                  DropdownMenuItem(value: 'moderate', child: Text('Moderate')),
-                  DropdownMenuItem(value: 'active', child: Text('Active')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                children: [
+                  SizedBox(height: 60),
+                  TextFormField(
+                    initialValue: _age.toString(),
+                    decoration: const InputDecoration(labelText: 'Age'),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      _age = int.tryParse(value) ?? _age;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    initialValue: _weight.toString(),
+                    decoration:
+                        const InputDecoration(labelText: 'Weight (lbs)'),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      _weight = double.tryParse(value) ?? _weight;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _activityLevel,
+                    items: const [
+                      DropdownMenuItem(value: 'low', child: Text('Low')),
+                      DropdownMenuItem(
+                          value: 'moderate', child: Text('Moderate')),
+                      DropdownMenuItem(value: 'active', child: Text('Active')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _activityLevel = value!;
+                      });
+                    },
+                    decoration:
+                        const InputDecoration(labelText: 'Activity Level'),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _submitDetails,
+                    child: const Text('Continue'),
+                  ),
                 ],
-                onChanged: (value) {
-                  setState(() {
-                    _activityLevel = value!;
-                  });
-                },
-                decoration: const InputDecoration(labelText: 'Activity Level'),
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitDetails,
-                child: const Text('Continue'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

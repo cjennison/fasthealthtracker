@@ -73,20 +73,19 @@ class UserService extends ChangeNotifier {
 
   Future<void> login(
       BuildContext context, String email, String password) async {
-    await ApiService().login(email, password).then((result) {
+    try {
+      final result = await ApiService().login(email, password);
       ApiService().setAuthToken(result['token']);
       LocalStorageService().saveAuthToken(result['token']);
 
-      // Fetch currentUser
-      ApiService().fetchCurrentUser().then((userData) {
-        final User user = getUserFromJson(userData);
+      final userData = await ApiService().fetchCurrentUser();
+      final User user = getUserFromJson(userData);
+      saveUser(user);
 
-        saveUser(user);
-
-        //  Navigate to home screen
-        Navigator.pushNamedAndRemoveUntil(context, '/app', (route) => false);
-      });
-    });
+      Navigator.pushNamedAndRemoveUntil(context, '/app', (route) => false);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   User getUserFromJson(Map<String, dynamic> userData) {

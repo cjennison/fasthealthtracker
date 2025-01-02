@@ -2,6 +2,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+class ApiException implements Exception {
+  final String message;
+  final int statusCode;
+
+  ApiException({required this.message, required this.statusCode});
+
+  @override
+  String toString() => 'ApiException: $message (statusCode: $statusCode)';
+}
+
 class ApiService {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
@@ -68,7 +78,9 @@ class ApiService {
       _authToken = data['token'];
       return data;
     } else {
-      throw Exception("Login failed: ${response.body}");
+      throw ApiException(
+          message: "Login failed: ${response.body}",
+          statusCode: response.statusCode);
     }
   }
 
