@@ -37,8 +37,8 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
               DropdownButton<String>(
                 value: exerciseType,
                 items: const [
-                  DropdownMenuItem(value: "Cardio", child: Text("Cardio")),
-                  DropdownMenuItem(value: "Strength", child: Text("Strength")),
+                  DropdownMenuItem(value: "cardio", child: Text("Cardio")),
+                  DropdownMenuItem(value: "strength", child: Text("Strength")),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -65,9 +65,9 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
               DropdownButton<String>(
                 value: exerciseIntensity,
                 items: const [
-                  DropdownMenuItem(value: "Easy", child: Text("Easy")),
-                  DropdownMenuItem(value: "Normal", child: Text("Normal")),
-                  DropdownMenuItem(value: "Hard", child: Text("Hard")),
+                  DropdownMenuItem(value: "easy", child: Text("Easy")),
+                  DropdownMenuItem(value: "normal", child: Text("Normal")),
+                  DropdownMenuItem(value: "hard", child: Text("Hard")),
                 ],
                 onChanged: (value) {
                   setState(() {

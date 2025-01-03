@@ -19,7 +19,7 @@ class _LoginViewState extends State<LoginView> {
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
 
-    Future<void> _login() async {
+    Future<void> login() async {
       if (isLoggingIn) {
         return;
       }
@@ -113,14 +113,14 @@ class _LoginViewState extends State<LoginView> {
                       }
                       return null;
                     },
-                    onFieldSubmitted: (value) => _login(),
+                    onFieldSubmitted: (value) => login(),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                     ),
-                    onPressed: _login,
+                    onPressed: login,
                     child: Container(
                       child: isLoggingIn
                           ? SizedBox(
