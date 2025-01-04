@@ -13,6 +13,32 @@ class FoodInputView extends StatefulWidget {
 class _FoodInputViewState extends State<FoodInputView> {
   final TextEditingController foodController = TextEditingController();
   String selectedQuantity = "some";
+
+  bool isProcessing = false;
+
+  Future<void> handleAdd() async {
+    setState(() {
+      isProcessing = true;
+    });
+    try {
+      await Provider.of<WellnessService>(context, listen: false).addCalories(
+          foodController.text, selectedQuantity, 300); // Mocked value
+      Navigator.pop(context);
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Failed to add food. Please try again."),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        isProcessing = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,9 +59,10 @@ class _FoodInputViewState extends State<FoodInputView> {
               value: selectedQuantity,
               items: const [
                 DropdownMenuItem(value: "some", child: Text("Some")),
+                DropdownMenuItem(value: "half", child: Text("Half")),
                 DropdownMenuItem(
-                    value: "enough", child: Text("Enough to be full")),
-                DropdownMenuItem(value: "a lot", child: Text("A lot")),
+                    value: "full", child: Text("Enough to be full")),
+                DropdownMenuItem(value: "extra", child: Text("A lot")),
               ],
               onChanged: (value) {
                 setState(() {
@@ -45,13 +72,19 @@ class _FoodInputViewState extends State<FoodInputView> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                Provider.of<WellnessService>(context, listen: false)
-                    .addCalories(foodController.text, selectedQuantity,
-                        300); // Mocked value
-                Navigator.pop(context);
-              },
-              child: const Text("Add Food"),
+              onPressed: handleAdd,
+              child: isProcessing
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        value: null,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text(
+                      "Add Food",
+                    ),
             ),
           ],
         ),

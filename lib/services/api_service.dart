@@ -1,16 +1,7 @@
 import 'dart:convert';
+import 'package:fasthealthcheck/services/api/classes/api_exception.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-class ApiException implements Exception {
-  final String message;
-  final int statusCode;
-
-  ApiException({required this.message, required this.statusCode});
-
-  @override
-  String toString() => 'ApiException: $message (statusCode: $statusCode)';
-}
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -62,6 +53,17 @@ class ApiService {
   Future<http.Response> get(String endpoint) async {
     final url = Uri.parse("$baseUrl$endpoint");
     return await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        if (_authToken != null) "Authorization": "Bearer $_authToken"
+      },
+    );
+  }
+
+  Future<http.Response> delete(String endpoint) async {
+    final url = Uri.parse("$baseUrl$endpoint");
+    return await http.delete(
       url,
       headers: {
         "Content-Type": "application/json",

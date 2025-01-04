@@ -1,5 +1,4 @@
 import 'package:fasthealthcheck/services/user_service.dart';
-import 'package:fasthealthcheck/services/wellness_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,10 +23,7 @@ class _StartupViewState extends State<StartupView> {
     final userService = Provider.of<UserService>(context, listen: false);
     await userService.initializeUser();
 
-    final wellnessService =
-        Provider.of<WellnessService>(context, listen: false);
-    await wellnessService.initializeWellnessData();
-
+    // Simulate a delay to show the loading spinner
     await Future.delayed(const Duration(seconds: 1));
 
     setState(() {

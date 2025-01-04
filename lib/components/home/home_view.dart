@@ -7,8 +7,36 @@ import 'package:fasthealthcheck/services/user_service.dart';
 import 'package:fasthealthcheck/services/wellness_service.dart';
 import 'package:provider/provider.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  bool isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
+    final userService = Provider.of<UserService>(context, listen: false);
+
+    if (userService.currentUser != null) {
+      final wellnessService =
+          Provider.of<WellnessService>(context, listen: false);
+      await wellnessService.initializeWellnessData();
+      setState(() {
+        isLoading = false;
+      });
+    } else {
+      // Something went wrong, go back to the splash screen
+      Navigator.pushReplacementNamed(context, '/splash');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +85,16 @@ class HomeView extends StatelessWidget {
                               onWaterTap: onWaterTap)
                         ]
                       : [],
-                ))
+                )),
+            if (isLoading)
+              Container(
+                color: Colors.black
+                    // ignore: deprecated_member_use
+                    .withOpacity(0.5), // Semi-transparent background
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
           ],
         );
       });

@@ -1,66 +1,15 @@
-import 'package:fasthealthcheck/services/local_storage_service.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
-class FoodEntry {
-  final String name;
-  final String quantity;
-  final int calories;
+import 'package:fasthealthcheck/models/user.dart';
+import 'package:fasthealthcheck/models/wellness.dart';
 
-  FoodEntry({
-    required this.name,
-    required this.quantity,
-    required this.calories,
-  });
-}
+import 'package:fasthealthcheck/services/api/api_wellness_service.dart';
+import 'package:fasthealthcheck/services/user_service.dart';
 
-class ExerciseEntry {
-  final String name;
-  final String type;
-  final String intensity;
-  final int caloriesBurned;
-
-  ExerciseEntry({
-    required this.name,
-    required this.type,
-    required this.intensity,
-    required this.caloriesBurned,
-  });
-}
-
-class DateWellnessData {
-  final List<FoodEntry> foodEntries;
-  final List<ExerciseEntry> exerciseEntries;
-  int glassesOfWater;
-  final DateTime date;
-
-  DateWellnessData({
-    required this.foodEntries,
-    required this.exerciseEntries,
-    required this.glassesOfWater,
-    required this.date,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'foodEntries': foodEntries
-          .map((entry) => {
-                'name': entry.name,
-                'quantity': entry.quantity,
-                'calories': entry.calories,
-              })
-          .toList(),
-      'exerciseEntries': exerciseEntries
-          .map((entry) => {
-                'name': entry.name,
-                'type': entry.type,
-                'intensity': entry.intensity,
-                'caloriesBurned': entry.caloriesBurned,
-              })
-          .toList(),
-      'glassesOfWater': glassesOfWater,
-      'date': DateTime(date.year, date.month, date.day).toString(),
-    };
-  }
+String formatToDateOnly(DateTime dateTime) {
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  return formatter.format(dateTime);
 }
 
 class WellnessService extends ChangeNotifier {
@@ -71,12 +20,12 @@ class WellnessService extends ChangeNotifier {
 
   static const int recommendedGlassesOfWater = 8;
 
-  String get currentDate => formattedToday.toString();
+  String get currentDate => formatToDateOnly(formattedToday);
 
   DateWellnessData get todayWellnessData {
     final dayWellnessData = _wellnessData[currentDate];
     if (dayWellnessData == null) {
-      getOrCreateDateWellnessData(today);
+      getOrCreateDateWellnessData(formattedToday);
       return _wellnessData[currentDate]!;
     }
     return dayWellnessData;
@@ -122,9 +71,8 @@ class WellnessService extends ChangeNotifier {
     // starting from today
     for (int i = 0; i < 365; i++) {
       final date = today.subtract(Duration(days: i));
-      final formattedDate =
-          DateTime(date.year, date.month, date.day).toString();
-      if (_wellnessData.containsKey(formattedDate)) {
+      final String formattedDateOnly = formatToDateOnly(date);
+      if (_wellnessData.containsKey(formattedDateOnly)) {
         streak++;
       } else {
         break;
@@ -142,111 +90,127 @@ class WellnessService extends ChangeNotifier {
   /// }
 
   Future<void> initializeWellnessData() async {
-    final dateRangeWellnessData =
-        await LocalStorageService().fetchWellnessData();
-    if (dateRangeWellnessData != null) {
-      // dateRangeWellnessData is a map with the following structure:
-      // {
-      //   'yyyy-mm-dd': dayWellnessData,
-      //   'yyyy-mm-dd': dayWellnessData,
-      //}
-
-      dateRangeWellnessData.forEach((key, value) {
-        final dayWellnessData = DateWellnessData(
-          foodEntries: value['foodEntries']
-              .map<FoodEntry>((entry) => FoodEntry(
-                    name: entry['name'],
-                    quantity: entry['quantity'],
-                    calories: entry['calories'],
-                  ))
-              .toList(),
-          exerciseEntries: value['exerciseEntries']
-              .map<ExerciseEntry>((entry) => ExerciseEntry(
-                    name: entry['name'],
-                    type: entry['type'],
-                    intensity: entry['intensity'],
-                    caloriesBurned: entry['caloriesBurned'],
-                  ))
-              .toList(),
-          glassesOfWater: value['glassesOfWater'],
-          date: DateTime.parse(key),
-        );
-
-        _wellnessData[key] = dayWellnessData;
-      });
-    } else {
-      _wellnessData[formattedToday.toString()] = DateWellnessData(
-        foodEntries: [],
-        exerciseEntries: [],
-        glassesOfWater: 0,
-        date: formattedToday,
-      );
-    }
-
+    print("Initializing wellness data for $formattedToday");
+    await getOrCreateDateWellnessData(formattedToday);
     notifyListeners();
   }
 
-  void getOrCreateDateWellnessData(DateTime date) {
-    final formattedDate = DateTime(date.year, date.month, date.day);
-    if (!_wellnessData.containsKey(formattedDate.toString())) {
-      _wellnessData[formattedDate.toString()] = DateWellnessData(
-        foodEntries: [],
-        exerciseEntries: [],
-        glassesOfWater: 0,
-        date: formattedDate,
-      );
+  Future<DateWellnessData> getOrCreateDateWellnessData(DateTime date) async {
+    final String formattedDate = formatToDateOnly(date);
+    User user = UserService().currentUser!;
+    try {
+      final wellnessDataJson = await ApiWellnessService()
+          .getWellnessDataByDate(user.id, formattedDate);
+
+      DateWellnessData wellnessData =
+          DateWellnessData.getWellnessDataFromJson(wellnessDataJson);
+
+      _wellnessData[formattedDate] = wellnessData;
+      return wellnessData;
+    } catch (e) {
+      // Create a new DateWellnessData object for the date
+      final newWellnessData = await ApiWellnessService()
+          .createWellnessData(UserService().currentUser!.id, formattedDate, 0);
+
+      final wellnessData =
+          DateWellnessData.getWellnessDataFromJson(newWellnessData);
+      _wellnessData[formattedDate] = wellnessData;
+
+      return wellnessData;
     }
   }
 
-  Future<void> saveWellnessData() async {
-    // Save all of the _wellnessData map to local storage
-    final dateRangeWellnessData = _wellnessData.map((key, value) {
-      return MapEntry(key, value.toJson());
-    });
-
-    await LocalStorageService().saveWellnessData(dateRangeWellnessData);
+  Future<void> updateWellnessData(DateWellnessData wellnessData) async {
+    try {
+      await ApiWellnessService().updateWellnessData(wellnessData.id, {
+        'glassesOfWater': wellnessData.glassesOfWater,
+      });
+    } catch (e) {
+      print("Error updating wellness data: $e");
+    }
   }
 
-  void addCalories(String foodName, String quantity, int calories) {
-    todayWellnessData.foodEntries
-        .add(FoodEntry(name: foodName, quantity: quantity, calories: calories));
-    saveWellnessData();
+  // Modifiers
+  //  NOTE: These current modify the object by its reference in the map
+  //    Eventually the object should be provided by the function and then updated and replaced in the map
+
+  Future<void> addCalories(
+      String foodName, String quantity, int calories) async {
+    final payload = {
+      "name": foodName,
+      "quantity": quantity,
+      "calories": calories,
+    };
+
+    try {
+      final data = await ApiWellnessService()
+          .addFoodEntry(todayWellnessData.id, payload);
+      FoodEntry foodEntry = FoodEntry.getFoodEntryFromJson(data);
+
+      todayWellnessData.foodEntries.add(foodEntry);
+    } catch (e) {
+      print("Error adding food entry: $e");
+    }
+
     notifyListeners();
   }
 
   void addWater() {
     todayWellnessData.glassesOfWater++;
-    saveWellnessData();
+    updateWellnessData(todayWellnessData);
     notifyListeners();
   }
 
   void removeWater() {
-    todayWellnessData.glassesOfWater++;
-    saveWellnessData();
+    todayWellnessData.glassesOfWater--;
+    updateWellnessData(todayWellnessData);
     notifyListeners();
   }
 
   void deleteFoodEntryByIndex(int index) {
+    FoodEntry foodEntry = todayWellnessData.foodEntries[index];
+
+    // Remove from API (Asynchronous operation)
+    ApiWellnessService().deleteFoodEntry(todayWellnessData.id, foodEntry.id);
+
+    // Remove local Entry
     todayWellnessData.foodEntries.removeAt(index);
-    saveWellnessData();
     notifyListeners();
   }
 
-  void logExercise(
-      String name, String type, String intensity, int caloriesBurned) {
-    todayWellnessData.exerciseEntries.add(ExerciseEntry(
-      name: name,
-      type: type,
-      intensity: intensity,
-      caloriesBurned: caloriesBurned,
-    ));
-    saveWellnessData();
+  Future<void> logExercise(
+      String name, String type, String intensity, int caloriesBurned) async {
+    final payload = {
+      "name": name,
+      "type": type,
+      "intensity": intensity,
+      "caloriesBurned": caloriesBurned,
+    };
+
+    try {
+      final data = await ApiWellnessService()
+          .addExerciseEntry(todayWellnessData.id, payload);
+      ExerciseEntry exerciseEntry =
+          ExerciseEntry.getExerciseEntryFromJson(data);
+
+      todayWellnessData.exerciseEntries.add(exerciseEntry);
+    } catch (e) {
+      print("Error adding exercise entry: $e");
+    }
     notifyListeners();
   }
 
+  //
   void deleteExerciseEntryByIndex(int index) {
+    ExerciseEntry exerciseEntry = todayWellnessData.exerciseEntries[index];
+
+    // Remove from API (Asynchronous operation)
+    ApiWellnessService()
+        .deleteExerciseEntry(todayWellnessData.id, exerciseEntry.id);
+
+    // Remove local Entry
     todayWellnessData.exerciseEntries.removeAt(index);
-    saveWellnessData();
+
     notifyListeners();
   }
 

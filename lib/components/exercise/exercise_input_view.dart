@@ -14,10 +14,11 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
   final TextEditingController exerciseController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  String exerciseType = "Cardio";
-  String exerciseIntensity = "Normal";
+  String exerciseType = "cardio";
+  String exerciseIntensity = "moderate";
   bool showCaloriesSlider = false;
   double caloriesBurned = 100; // Default calories for slider
+  bool isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +67,7 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
                 value: exerciseIntensity,
                 items: const [
                   DropdownMenuItem(value: "easy", child: Text("Easy")),
-                  DropdownMenuItem(value: "normal", child: Text("Normal")),
+                  DropdownMenuItem(value: "moderate", child: Text("Moderate")),
                   DropdownMenuItem(value: "hard", child: Text("Hard")),
                 ],
                 onChanged: (value) {
@@ -161,14 +162,31 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
     }
   }
 
-  void _submitExercise(BuildContext context, int calories) {
+  Future<void> _submitExercise(BuildContext context, int calories) async {
+    setState(() {
+      isProcessing = true;
+    });
     final exerciseName = exerciseController.text.isEmpty
         ? exerciseType
         : exerciseController.text;
 
-    Provider.of<WellnessService>(context, listen: false)
-        .logExercise(exerciseName, exerciseType, exerciseIntensity, calories);
+    try {
+      await Provider.of<WellnessService>(context, listen: false)
+          .logExercise(exerciseName, exerciseType, exerciseIntensity, calories);
 
-    Navigator.pop(context);
+      Navigator.pop(context);
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Failed to add exercise. Please try again."),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        isProcessing = false;
+      });
+    }
   }
 }
