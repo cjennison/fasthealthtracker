@@ -17,6 +17,7 @@ class WellnessService extends ChangeNotifier {
   final DateTime today = DateTime.now();
   final DateTime formattedToday =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  int streak = 0;
 
   static const int recommendedGlassesOfWater = 8;
 
@@ -63,24 +64,7 @@ class WellnessService extends ChangeNotifier {
     return 2000 - consumed + burned;
   }
 
-  int get currentStreak {
-    int streak = 0;
-    final today = DateTime.now();
-
-    // For all keys in the wellness data, see how many they are such that they are consecutive days
-    // starting from today
-    for (int i = 0; i < 365; i++) {
-      final date = today.subtract(Duration(days: i));
-      final String formattedDateOnly = formatToDateOnly(date);
-      if (_wellnessData.containsKey(formattedDateOnly)) {
-        streak++;
-      } else {
-        break;
-      }
-    }
-
-    return streak;
-  }
+  int get currentStreak => streak;
 
   /// dayWellnessData is a map with the following structure:
   /// {
@@ -92,6 +76,11 @@ class WellnessService extends ChangeNotifier {
   Future<void> initializeWellnessData() async {
     print("Initializing wellness data for $formattedToday");
     await getOrCreateDateWellnessData(formattedToday);
+
+    final streakData = await ApiWellnessService()
+        .getWellnessStreak(UserService().currentUser!.id);
+    streak = streakData['streak'];
+
     notifyListeners();
   }
 
@@ -215,9 +204,7 @@ class WellnessService extends ChangeNotifier {
   }
 
   void clearWellnessData() {
-    todayWellnessData.glassesOfWater = 0;
-    todayWellnessData.foodEntries.clear();
-    todayWellnessData.exerciseEntries.clear();
+    _wellnessData.clear();
     notifyListeners();
   }
 }

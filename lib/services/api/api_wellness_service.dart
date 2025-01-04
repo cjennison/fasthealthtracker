@@ -34,6 +34,18 @@ class ApiWellnessService extends ApiService {
     }
   }
 
+  // Fetch wellness streak number
+  Future<Map<String, dynamic>> getWellnessStreak(String userId) async {
+    final endpoint = "/wellness/users/$userId/streak";
+    final response = await get(endpoint);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception(
+          "Failed to fetch wellness data for date: ${response.body}");
+    }
+  }
+
   // Add new wellness data for a specific date
   Future<Map<String, dynamic>> createWellnessData(
       String userId, String date, int glassesOfWater) async {
