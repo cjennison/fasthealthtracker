@@ -14,6 +14,17 @@ class WellnessBars extends StatelessWidget {
             wellnessService.caloriesConsumed.toDouble();
         final double caloriesAvailable = 2000.0; // Example target
 
+        // If the calories consumed are greater than the target, set max to the target
+        double maxCalories = caloriesConsumed > caloriesAvailable
+            ? caloriesConsumed
+            : caloriesAvailable;
+
+        // If calories burned exceeds the exercise goal, set that max to the burned
+        double maxCaloriesBurned = wellnessService.exerciseBurned.toDouble() >
+                wellnessService.exerciseGoal.toDouble()
+            ? wellnessService.exerciseBurned.toDouble()
+            : wellnessService.exerciseGoal.toDouble();
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -25,17 +36,23 @@ class WellnessBars extends StatelessWidget {
               ),
             ),
             _buildStackedBar(
+              context: context,
               label: 'Calories eaten',
               value: caloriesConsumed,
-              maxValue: caloriesAvailable,
+              originalMaximum: caloriesAvailable,
+              maxValue: maxCalories,
               color: Colors.orange,
+              overflowColor: Colors.red,
             ),
             const SizedBox(height: 16),
             _buildStackedBar(
+              context: context,
               label: 'Burned Calories through Exercise',
               value: wellnessService.exerciseBurned.toDouble(),
-              maxValue: wellnessService.exerciseGoal.toDouble(),
+              originalMaximum: wellnessService.exerciseGoal.toDouble(),
+              maxValue: maxCaloriesBurned,
               color: Colors.blue,
+              overflowColor: Colors.green,
             ),
             _buildWaterIcons(context),
           ],
@@ -45,105 +62,151 @@ class WellnessBars extends StatelessWidget {
   }
 
   Widget _buildStackedBar({
+    required BuildContext context,
     required String label,
     required double value,
+    required double originalMaximum,
     required double maxValue,
     required Color color,
+    required Color overflowColor,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                height: 20,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(8),
+    double mainBarValue = value < originalMaximum ? value : originalMaximum;
+    // mainBarWidth is the width of the main bar never exceeding the original maximum.
+    // If the value exceeds the original maximum, the main bar width is the width of the original maximum
+    //  and the width is reduced by the ration difference between the originalMaximum and the maxValue
+    double mainBarWidth =
+        value < originalMaximum ? value / maxValue : originalMaximum / maxValue;
+    double excessBarWidth =
+        value > originalMaximum ? (value - originalMaximum) / maxValue : 0.0;
+
+    return LayoutBuilder(builder: (context, constraints) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-              ),
-              FractionallySizedBox(
-                widthFactor: value / maxValue,
-                child: Stack(
-                  children: [
-                    Container(
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    Positioned(
-                      right: 4,
-                      top: 0,
-                      child: Text(
-                        value.toInt().toString(),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Positioned.fill(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(5, (index) {
-                    final double notchValue = maxValue * (index / 4);
-                    return Column(
-                      children: [
-                        const SizedBox(height: 2),
-                        if ((index < 4 && index > 0) &&
-                            notchValue >
-                                (value +
-                                    value *
-                                        0.25)) // Random number I chose to prevent overlapping
-                          Text(
-                            notchValue.toInt().toString(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[900],
+                FractionallySizedBox(
+                  widthFactor: mainBarWidth + excessBarWidth,
+                  child: Row(
+                    children: [
+                      // Main Bar
+                      Flexible(
+                        flex: (mainBarWidth * 1000).toInt(),
+                        child: Container(
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.horizontal(
+                              left: const Radius.circular(8),
+                              right: excessBarWidth > 0
+                                  ? Radius.zero
+                                  : const Radius.circular(8),
                             ),
                           ),
-                      ],
-                    );
-                  }),
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Text(
+                            mainBarValue.toInt().toString(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Excess Bar (if it exists)
+                      if (excessBarWidth > 0)
+                        Flexible(
+                          flex: (excessBarWidth * 1000).toInt(),
+                          child: Container(
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: overflowColor,
+                              borderRadius: const BorderRadius.horizontal(
+                                right: Radius.circular(8),
+                              ),
+                            ),
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Text(
+                              value.toInt().toString(),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '0',
-                style: const TextStyle(
-                  fontSize: 14,
+                Positioned.fill(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(5, (index) {
+                      final double notchValue = maxValue * (index / 4);
+                      return Column(
+                        children: [
+                          const SizedBox(height: 2),
+                          if ((index < 4 && index > 0) &&
+                              notchValue >
+                                  (value +
+                                      value *
+                                          0.25)) // Random number I chose to prevent overlapping
+                            Text(
+                              notchValue.toInt().toString(),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[900],
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
+                  ),
                 ),
-              ),
-              Text(
-                maxValue.toInt().toString(),
-                style: const TextStyle(
-                  fontSize: 14,
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '0',
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+                Text(
+                  maxValue.toInt().toString(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildWaterIcons(BuildContext context) {
