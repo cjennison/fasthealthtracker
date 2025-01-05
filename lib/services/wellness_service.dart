@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/services/api/classes/api_wellness.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
@@ -138,12 +139,9 @@ class WellnessService extends ChangeNotifier {
   //    Eventually the object should be provided by the function and then updated and replaced in the map
 
   Future<void> addCalories(
-      String foodName, String quantity, int calories) async {
-    final payload = {
-      "name": foodName,
-      "quantity": quantity,
-      "calories": calories,
-    };
+      String foodName, String quantity, int? calories) async {
+    final FoodEntryPayload payload = FoodEntryPayload(
+        name: foodName, quantity: quantity, calories: calories);
 
     try {
       final data = await ApiWellnessService()
@@ -183,13 +181,13 @@ class WellnessService extends ChangeNotifier {
   }
 
   Future<void> logExercise(
-      String name, String type, String intensity, int caloriesBurned) async {
-    final payload = {
-      "name": name,
-      "type": type,
-      "intensity": intensity,
-      "caloriesBurned": caloriesBurned,
-    };
+      String name, String type, String intensity, int? caloriesBurned) async {
+    final ExerciseEntryPayload payload = ExerciseEntryPayload(
+      name: name,
+      type: type,
+      intensity: intensity,
+      caloriesBurned: caloriesBurned,
+    );
 
     try {
       final data = await ApiWellnessService()

@@ -170,9 +170,11 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
         ? exerciseType
         : exerciseController.text;
 
+    final manualCaloriesBurned = showCaloriesSlider ? calories : null;
+
     try {
-      await Provider.of<WellnessService>(context, listen: false)
-          .logExercise(exerciseName, exerciseType, exerciseIntensity, calories);
+      await Provider.of<WellnessService>(context, listen: false).logExercise(
+          exerciseName, exerciseType, exerciseIntensity, manualCaloriesBurned);
 
       Navigator.pop(context);
     } catch (e) {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:fasthealthcheck/services/api/classes/api_exception.dart';
+import 'package:fasthealthcheck/services/api/classes/api_wellness.dart';
 import 'package:fasthealthcheck/services/api_service.dart';
 
 class ApiWellnessService extends ApiService {
@@ -82,13 +83,9 @@ class ApiWellnessService extends ApiService {
 
   // Add a food entry to wellness data
   Future<Map<String, dynamic>> addFoodEntry(
-      String wellnessDataId, Map<String, dynamic> data) async {
+      String wellnessDataId, FoodEntryPayload data) async {
     final endpoint = "/wellness/$wellnessDataId/food";
-    final response = await post(endpoint, {
-      "name": data["name"],
-      "quantity": data["quantity"],
-      "calories": data["calories"],
-    });
+    final response = await post(endpoint, data.toJson());
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -98,14 +95,9 @@ class ApiWellnessService extends ApiService {
 
   // Add an exercise entry to wellness data
   Future<Map<String, dynamic>> addExerciseEntry(
-      String wellnessDataId, Map<String, dynamic> data) async {
+      String wellnessDataId, ExerciseEntryPayload data) async {
     final endpoint = "/wellness/$wellnessDataId/exercise";
-    final response = await post(endpoint, {
-      "name": data["name"],
-      "type": data["type"],
-      "intensity": data["intensity"],
-      "caloriesBurned": data["caloriesBurned"],
-    });
+    final response = await post(endpoint, data.toJson());
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
