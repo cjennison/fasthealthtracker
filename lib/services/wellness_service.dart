@@ -13,35 +13,44 @@ String formatToDateOnly(DateTime dateTime) {
 }
 
 class WellnessService extends ChangeNotifier {
-  final Map<String, DateWellnessData> _wellnessData = {};
-  final DateTime today = DateTime.now();
-  final DateTime formattedToday =
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-  int streak = 0;
-
+  // Constants
   static const int recommendedGlassesOfWater = 8;
 
-  String get currentDate => formatToDateOnly(formattedToday);
+  final Map<String, DateWellnessData> _wellnessData = {};
+  final DateTime today = DateTime.now();
+  DateTime _selectedDate = DateTime.now();
 
-  DateWellnessData get todayWellnessData {
-    final dayWellnessData = _wellnessData[currentDate];
+  int streak = 0;
+
+  // selectedDate is the date that the user is currently viewing as a DateTime
+  DateTime get selectedDate => _selectedDate;
+
+  // currentDateFormatted is the selectedDate formatted as a string for the wellnessData map
+  String get currentDateFormatted => formatToDateOnly(_selectedDate);
+  set selectedDate(DateTime date) {
+    _selectedDate = date;
+    notifyListeners();
+  }
+
+  DateWellnessData get currentDateWellnessData {
+    final dayWellnessData = _wellnessData[currentDateFormatted];
     if (dayWellnessData == null) {
-      getOrCreateDateWellnessData(formattedToday);
-      return _wellnessData[currentDate]!;
+      return _wellnessData[currentDateFormatted]!;
     }
     return dayWellnessData;
   }
 
+  //  TODO: Implement the following getters to get true data
   int get exerciseGoal => 1000;
 
   // Each getting gets the values below for the current date in the wellnessData map
   int get glassesOfWater => () {
-        final dayWellnessData = _wellnessData[currentDate];
+        final dayWellnessData = _wellnessData[currentDateFormatted];
         return dayWellnessData?.glassesOfWater ?? 0;
       }();
 
   int get caloriesConsumed => () {
-        final dayWellnessData = _wellnessData[currentDate];
+        final dayWellnessData = _wellnessData[currentDateFormatted];
         if (dayWellnessData != null) {
           return dayWellnessData.foodEntries
               .fold(0, (sum, entry) => sum + entry.calories);
@@ -50,7 +59,7 @@ class WellnessService extends ChangeNotifier {
       }();
 
   int get exerciseBurned => () {
-        final dayWellnessData = _wellnessData[currentDate];
+        final dayWellnessData = _wellnessData[currentDateFormatted];
         if (dayWellnessData != null) {
           return dayWellnessData.exerciseEntries
               .fold(0, (sum, entry) => sum + entry.caloriesBurned);
@@ -74,13 +83,18 @@ class WellnessService extends ChangeNotifier {
   /// }
 
   Future<void> initializeWellnessData() async {
-    print("Initializing wellness data for $formattedToday");
-    await getOrCreateDateWellnessData(formattedToday);
+    print("Initializing wellness data for $_selectedDate");
+    await getOrCreateDateWellnessData(_selectedDate);
 
     final streakData = await ApiWellnessService()
         .getWellnessStreak(UserService().currentUser!.id);
     streak = streakData['streak'];
 
+    notifyListeners();
+  }
+
+  Future<void> refreshWellnessData() async {
+    await getOrCreateDateWellnessData(_selectedDate);
     notifyListeners();
   }
 
@@ -133,10 +147,10 @@ class WellnessService extends ChangeNotifier {
 
     try {
       final data = await ApiWellnessService()
-          .addFoodEntry(todayWellnessData.id, payload);
+          .addFoodEntry(currentDateWellnessData.id, payload);
       FoodEntry foodEntry = FoodEntry.getFoodEntryFromJson(data);
 
-      todayWellnessData.foodEntries.add(foodEntry);
+      currentDateWellnessData.foodEntries.add(foodEntry);
     } catch (e) {
       print("Error adding food entry: $e");
     }
@@ -145,25 +159,26 @@ class WellnessService extends ChangeNotifier {
   }
 
   void addWater() {
-    todayWellnessData.glassesOfWater++;
-    updateWellnessData(todayWellnessData);
+    currentDateWellnessData.glassesOfWater++;
+    updateWellnessData(currentDateWellnessData);
     notifyListeners();
   }
 
   void removeWater() {
-    todayWellnessData.glassesOfWater--;
-    updateWellnessData(todayWellnessData);
+    currentDateWellnessData.glassesOfWater--;
+    updateWellnessData(currentDateWellnessData);
     notifyListeners();
   }
 
   void deleteFoodEntryByIndex(int index) {
-    FoodEntry foodEntry = todayWellnessData.foodEntries[index];
+    FoodEntry foodEntry = currentDateWellnessData.foodEntries[index];
 
     // Remove from API (Asynchronous operation)
-    ApiWellnessService().deleteFoodEntry(todayWellnessData.id, foodEntry.id);
+    ApiWellnessService()
+        .deleteFoodEntry(currentDateWellnessData.id, foodEntry.id);
 
     // Remove local Entry
-    todayWellnessData.foodEntries.removeAt(index);
+    currentDateWellnessData.foodEntries.removeAt(index);
     notifyListeners();
   }
 
@@ -178,11 +193,11 @@ class WellnessService extends ChangeNotifier {
 
     try {
       final data = await ApiWellnessService()
-          .addExerciseEntry(todayWellnessData.id, payload);
+          .addExerciseEntry(currentDateWellnessData.id, payload);
       ExerciseEntry exerciseEntry =
           ExerciseEntry.getExerciseEntryFromJson(data);
 
-      todayWellnessData.exerciseEntries.add(exerciseEntry);
+      currentDateWellnessData.exerciseEntries.add(exerciseEntry);
     } catch (e) {
       print("Error adding exercise entry: $e");
     }
@@ -191,14 +206,15 @@ class WellnessService extends ChangeNotifier {
 
   //
   void deleteExerciseEntryByIndex(int index) {
-    ExerciseEntry exerciseEntry = todayWellnessData.exerciseEntries[index];
+    ExerciseEntry exerciseEntry =
+        currentDateWellnessData.exerciseEntries[index];
 
     // Remove from API (Asynchronous operation)
     ApiWellnessService()
-        .deleteExerciseEntry(todayWellnessData.id, exerciseEntry.id);
+        .deleteExerciseEntry(currentDateWellnessData.id, exerciseEntry.id);
 
     // Remove local Entry
-    todayWellnessData.exerciseEntries.removeAt(index);
+    currentDateWellnessData.exerciseEntries.removeAt(index);
 
     notifyListeners();
   }

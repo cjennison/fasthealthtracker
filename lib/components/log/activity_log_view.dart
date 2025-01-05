@@ -9,7 +9,10 @@ class ActivityLogView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = DateFormat.yMMMMd().format(DateTime.now());
+    WellnessService wellnessService = Provider.of<WellnessService>(context);
+
+    String formattedDate =
+        DateFormat.yMMMMd().format(wellnessService.selectedDate);
 
     return Scaffold(
       appBar: AppBar(
@@ -18,76 +21,97 @@ class ActivityLogView extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isSmallScreen = constraints.maxWidth < 450;
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Consumer<WellnessService>(
-              builder: (context, wellnessService, child) {
-                final foodEntries =
-                    wellnessService.todayWellnessData.foodEntries;
-                final exerciseEntries =
-                    wellnessService.todayWellnessData.exerciseEntries;
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 800),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Consumer<WellnessService>(
+                  builder: (context, wellnessService, child) {
+                    final foodEntries =
+                        wellnessService.currentDateWellnessData.foodEntries;
+                    final exerciseEntries =
+                        wellnessService.currentDateWellnessData.exerciseEntries;
 
-                if (foodEntries.isEmpty && exerciseEntries.isEmpty) {
-                  return const Center(
-                    child: Text("No activity logged today."),
-                  );
-                }
+                    if (foodEntries.isEmpty && exerciseEntries.isEmpty) {
+                      return Center(
+                        child: Text("No activity logged for $formattedDate."),
+                      );
+                    }
 
-                return ListView(
-                  children: [
-                    Row(
-                      children: [
-                        const Text("Activity Entries",
-                            style: TextStyle(fontSize: 18)),
-                        const Spacer(),
-                        Text(
-                          "Calories",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    ),
-                    ...foodEntries.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final foodEntry = entry.value;
-                      return _buildLogEntry(
-                        context,
-                        isSmallScreen,
-                        icon: Icons.restaurant,
-                        iconColor: Colors.orange,
-                        name: foodEntry.name,
-                        subText: foodEntry.quantity,
-                        calories: foodEntry.calories,
-                        onDelete: () {
-                          _showDeleteConfirmationDialog(context, () {
-                            Provider.of<WellnessService>(context, listen: false)
-                                .deleteFoodEntryByIndex(index);
-                          });
-                        },
-                      );
-                    }),
-                    ...exerciseEntries.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final exerciseEntry = entry.value;
-                      return _buildLogEntry(
-                        context,
-                        isSmallScreen,
-                        icon: Icons.fitness_center,
-                        iconColor: Colors.blue,
-                        name: exerciseEntry.name,
-                        subText:
-                            "${exerciseEntry.type} (${exerciseEntry.intensity})",
-                        calories: exerciseEntry.caloriesBurned,
-                        onDelete: () {
-                          _showDeleteConfirmationDialog(context, () {
-                            Provider.of<WellnessService>(context, listen: false)
-                                .deleteExerciseEntryByIndex(index);
-                          });
-                        },
-                      );
-                    }),
-                  ],
-                );
-              },
+                    return Center(
+                      child: ListView(
+                        children: [
+                          Row(
+                            children: [
+                              const Text("Activity Entries",
+                                  style: TextStyle(fontSize: 18)),
+                              const Spacer(),
+                              Text(
+                                "Calories",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ],
+                            // Horizontal ruler
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(top: 8),
+                                  height: 1,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          ...foodEntries.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final foodEntry = entry.value;
+                            return _buildLogEntry(
+                              context,
+                              isSmallScreen,
+                              icon: Icons.restaurant,
+                              iconColor: Colors.orange,
+                              name: foodEntry.name,
+                              subText: foodEntry.quantity,
+                              calories: foodEntry.calories,
+                              onDelete: () {
+                                _showDeleteConfirmationDialog(context, () {
+                                  Provider.of<WellnessService>(context,
+                                          listen: false)
+                                      .deleteFoodEntryByIndex(index);
+                                });
+                              },
+                            );
+                          }),
+                          ...exerciseEntries.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final exerciseEntry = entry.value;
+                            return _buildLogEntry(
+                              context,
+                              isSmallScreen,
+                              icon: Icons.fitness_center,
+                              iconColor: Colors.blue,
+                              name: exerciseEntry.name,
+                              subText:
+                                  "${exerciseEntry.type} (${exerciseEntry.intensity})",
+                              calories: exerciseEntry.caloriesBurned,
+                              onDelete: () {
+                                _showDeleteConfirmationDialog(context, () {
+                                  Provider.of<WellnessService>(context,
+                                          listen: false)
+                                      .deleteExerciseEntryByIndex(index);
+                                });
+                              },
+                            );
+                          }),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           );
         },

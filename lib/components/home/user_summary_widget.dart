@@ -14,9 +14,22 @@ class UserSummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = DateFormat.yMMMMd().format(DateTime.now());
+    final wellnessService = Provider.of<WellnessService>(context);
+
+    String formattedDate =
+        DateFormat.yMMMMd().format(wellnessService.selectedDate);
     User currentUser = user;
-    int streak = Provider.of<WellnessService>(context).currentStreak;
+    int streak = wellnessService.currentStreak;
+    DateTime today = wellnessService.today;
+
+    bool isToday = wellnessService.selectedDate.isAtSameMomentAs(today);
+
+    void onSwitchDate(bool isNextDay) {
+      wellnessService.selectedDate = isNextDay
+          ? wellnessService.selectedDate.add(const Duration(days: 1))
+          : wellnessService.selectedDate.subtract(const Duration(days: 1));
+      wellnessService.refreshWellnessData();
+    }
 
     return Column(
       children: [
@@ -67,8 +80,24 @@ class UserSummaryWidget extends StatelessWidget {
             ),
           ],
         ),
-        Text(
-          formattedDate,
+        Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                onSwitchDate(false);
+              },
+            ),
+            Text(isToday ? "Today, $formattedDate" : formattedDate),
+            IconButton(
+              icon: Icon(Icons.arrow_forward,
+                  color: isToday ? Colors.grey : null),
+              onPressed: () {
+                if (isToday) return;
+                onSwitchDate(true);
+              },
+            ),
+          ],
         ),
       ],
     );
