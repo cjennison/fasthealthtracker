@@ -14,8 +14,10 @@ class UserService extends ChangeNotifier {
   UserService._internal();
 
   User? _currentUser;
+  bool userIsVerified = false;
 
   User? get currentUser => _currentUser;
+  bool get isUserVerified => userIsVerified;
 
   Future<void> initializeUser() async {
     // Check if an Auth token exists, if so attempt to get the current user from the API
@@ -25,10 +27,7 @@ class UserService extends ChangeNotifier {
 
       // Fetch currentUser
       try {
-        final userData = await ApiService().fetchCurrentUser();
-        print("User data: $userData");
-        final User user = getUserFromJson(userData);
-        saveUser(user);
+        await getCurrentUser();
       } catch (e) {
         print("Error fetching user: $e");
       }
@@ -38,6 +37,23 @@ class UserService extends ChangeNotifier {
   void saveUser(User user) async {
     _currentUser = user;
     notifyListeners();
+  }
+
+  Future<User?> getCurrentUser() async {
+    try {
+      // Fetch user details
+      final userData = await ApiService().fetchCurrentUser();
+      final User user = getUserFromJson(userData);
+      saveUser(user);
+
+      // Fetch user verification status async (No await)
+      fetchUserVerificationStatus(user.id);
+
+      return user;
+    } catch (e) {
+      print("Error fetching user: $e");
+      return null;
+    }
   }
 
   Future<void> updateUserProfile(String id, UserProfile userProfile) async {
@@ -64,11 +80,12 @@ class UserService extends ChangeNotifier {
     LocalStorageService().saveAuthToken(result['token']);
 
     // Fetch currentUser and save it
-    final userData = await ApiService().fetchCurrentUser();
-    final User user = getUserFromJson(userData);
-    saveUser(user);
-
-    return user;
+    User? currentUser = await getCurrentUser();
+    if (currentUser != null) {
+      return currentUser;
+    } else {
+      throw Exception("Error fetching user after registration");
+    }
   }
 
   Future<void> login(
@@ -78,9 +95,11 @@ class UserService extends ChangeNotifier {
       ApiService().setAuthToken(result['token']);
       LocalStorageService().saveAuthToken(result['token']);
 
-      final userData = await ApiService().fetchCurrentUser();
-      final User user = getUserFromJson(userData);
-      saveUser(user);
+      // Fetch currentUser and save it
+      User? currentUser = await getCurrentUser();
+      if (currentUser == null) {
+        throw Exception("Error fetching user after login");
+      }
 
       Navigator.pushNamedAndRemoveUntil(context, '/app', (route) => false);
     } catch (e) {
@@ -100,6 +119,38 @@ class UserService extends ChangeNotifier {
         "activityLevel": userData['userProfile']['activityLevel'],
       },
     });
+  }
+
+  Future<void> fetchUserVerificationStatus(String id) async {
+    try {
+      final data = await ApiUserService().getUserVerificationStatus(id);
+      print("User verification status: $data");
+      userIsVerified = data['isEmailVerified'] || data['isSmsVerified'];
+      print("User is verified: $userIsVerified");
+    } catch (e) {
+      print("Error fetching user verification status: $e");
+    }
+  }
+
+  Future<void> sendVerificationEmail(String email) async {
+    try {
+      final data = await ApiUserService().resendUserVerificationEmail(email);
+      print("Verification email sent: $data");
+    } catch (e) {
+      print("Error sending verification email: $e");
+    }
+  }
+
+  Future<void> verifyUser(
+      String id, String email, String verificationCode) async {
+    try {
+      final data = await ApiUserService()
+          .postVerificationCode(id, email, verificationCode);
+      print("User verified: $data");
+      fetchUserVerificationStatus(id);
+    } catch (e) {
+      rethrow; // Allow component to catch for error handling
+    }
   }
 
   void logout() {

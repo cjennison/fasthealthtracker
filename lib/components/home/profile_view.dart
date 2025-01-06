@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fasthealthcheck/services/user_service.dart';
 import 'package:fasthealthcheck/services/wellness_service.dart';
+import 'package:fasthealthcheck/components/home/verification_view.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -59,7 +60,8 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserService>(context).currentUser;
+    final userService = Provider.of<UserService>(context);
+    final user = userService.currentUser;
 
     if (user == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -96,6 +98,15 @@ class _ProfileViewState extends State<ProfileView> {
               ],
             ),
             const SizedBox(height: 20),
+            userService.isUserVerified
+                ? Row(
+                    children: const [
+                      Icon(Icons.check, color: Colors.green),
+                      SizedBox(width: 8),
+                      Text('Email verified'),
+                    ],
+                  )
+                : const VerificationView(),
             if (isEditing)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
