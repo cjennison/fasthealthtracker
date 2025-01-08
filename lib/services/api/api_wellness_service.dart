@@ -56,9 +56,13 @@ class ApiWellnessService extends ApiService {
       "date": date,
       "glassesOfWater": glassesOfWater,
     });
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
+    try {
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception("Failed to parse wellness data");
+      }
+    } catch (e) {
       throw ApiException(
         message: "Failed to create wellness data",
         statusCode: response.statusCode,
