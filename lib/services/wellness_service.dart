@@ -112,6 +112,7 @@ class WellnessService extends ChangeNotifier {
       _wellnessData[formattedDate] = wellnessData;
       return wellnessData;
     } catch (e) {
+      print(e);
       // Create a new DateWellnessData object for the date
       final newWellnessData = await ApiWellnessService()
           .createWellnessData(UserService().currentUser!.id, formattedDate, 0);
@@ -146,6 +147,7 @@ class WellnessService extends ChangeNotifier {
     try {
       final data = await ApiWellnessService()
           .addFoodEntry(currentDateWellnessData.id, payload);
+      print(data);
       FoodEntry foodEntry = FoodEntry.getFoodEntryFromJson(data);
 
       currentDateWellnessData.foodEntries.add(foodEntry);

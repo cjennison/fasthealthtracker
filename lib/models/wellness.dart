@@ -1,14 +1,45 @@
+int parseIntFromUnknown(dynamic value) {
+  if (value is int) {
+    return value;
+  } else if (value is String) {
+    return int.tryParse(value) ?? 0;
+  } else if (value is double) {
+    return value.toInt();
+  } else {
+    return 0;
+  }
+}
+
+class FoodItem {
+  final String units;
+  final int cloriesPerUnit;
+
+  FoodItem({
+    required this.units,
+    required this.cloriesPerUnit,
+  });
+
+  static FoodItem getFoodItemFromJson(Map<String, dynamic> json) {
+    return FoodItem(
+      units: json['units'],
+      cloriesPerUnit: parseIntFromUnknown(json['cloriesPerUnit']),
+    );
+  }
+}
+
 class FoodEntry {
   String id;
   final String name;
   final String quantity;
   final int calories;
+  final FoodItem? foodItem;
 
   FoodEntry({
     required this.id,
     required this.name,
     required this.quantity,
     required this.calories,
+    this.foodItem,
   });
 
   Map<String, dynamic> toJson() {
@@ -24,7 +55,10 @@ class FoodEntry {
       id: json['_id'],
       name: json['name'],
       quantity: json['quantity'],
-      calories: json['calories'],
+      calories: parseIntFromUnknown(json['calories']),
+      foodItem: json['foodItem'] != null
+          ? FoodItem.getFoodItemFromJson(json['foodItem'])
+          : null,
     );
   }
 }
@@ -91,19 +125,11 @@ class DateWellnessData {
       '_id': id,
       'userId': userId,
       'foodEntries': foodEntries
-          .map((entry) => {
-                'name': entry.name,
-                'quantity': entry.quantity,
-                'calories': entry.calories,
-              })
+          .map((entry) => FoodEntry.getFoodEntryFromJson(entry.toJson()))
           .toList(),
       'exerciseEntries': exerciseEntries
-          .map((entry) => {
-                'name': entry.name,
-                'type': entry.type,
-                'intensity': entry.intensity,
-                'caloriesBurned': entry.caloriesBurned,
-              })
+          .map(
+              (entry) => ExerciseEntry.getExerciseEntryFromJson(entry.toJson()))
           .toList(),
       'glassesOfWater': glassesOfWater,
       'date': date,
@@ -117,12 +143,7 @@ class DateWellnessData {
       date: json['date'],
       glassesOfWater: json['glassesOfWater'],
       foodEntries: json['foodEntries']
-          .map<FoodEntry>((entry) => FoodEntry(
-                id: entry['_id'],
-                name: entry['name'],
-                quantity: entry['quantity'],
-                calories: entry['calories'],
-              ))
+          .map<FoodEntry>((entry) => FoodEntry.getFoodEntryFromJson(entry))
           .toList(),
       exerciseEntries: json['exerciseEntries']
           .map<ExerciseEntry>((entry) => ExerciseEntry(
