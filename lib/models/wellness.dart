@@ -146,13 +146,8 @@ class DateWellnessData {
           .map<FoodEntry>((entry) => FoodEntry.getFoodEntryFromJson(entry))
           .toList(),
       exerciseEntries: json['exerciseEntries']
-          .map<ExerciseEntry>((entry) => ExerciseEntry(
-                id: entry['_id'],
-                name: entry['name'],
-                type: entry['type'],
-                intensity: entry['intensity'],
-                caloriesBurned: entry['caloriesBurned'],
-              ))
+          .map<ExerciseEntry>(
+              (entry) => ExerciseEntry.getExerciseEntryFromJson(entry))
           .toList(),
     );
   }

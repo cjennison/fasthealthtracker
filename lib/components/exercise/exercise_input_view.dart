@@ -119,14 +119,6 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
                           },
                           child: const Text("Cancel"),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _submitExercise(context, caloriesBurned.toInt());
-                            }
-                          },
-                          child: const Text("Submit"),
-                        ),
                       ],
                     ),
                   ],
@@ -136,12 +128,27 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
               if (!showCaloriesSlider)
                 ElevatedButton(
                   onPressed: () {
-                    int calculatedCalories = _calculateCalories();
+                    int? calculatedCalories;
+                    if (showCaloriesSlider) {
+                      calculatedCalories = caloriesBurned.toInt();
+                    }
                     if (_formKey.currentState!.validate()) {
-                      _submitExercise(context, calculatedCalories.toInt());
+                      _submitExercise(context, calculatedCalories);
                     }
                   },
-                  child: const Text("Submit Exercise"),
+                  child: isProcessing
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            value: null,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          "Submit Exercise",
+                        ),
                 ),
             ],
           ),
@@ -150,19 +157,7 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
     );
   }
 
-  int _calculateCalories() {
-    // Mocked calorie calculation based on intensity and type
-    int baseCalories = exerciseType == "Cardio" ? 150 : 100;
-    if (exerciseIntensity == "Easy") {
-      return baseCalories;
-    } else if (exerciseIntensity == "Normal") {
-      return baseCalories + 50;
-    } else {
-      return baseCalories + 100;
-    }
-  }
-
-  Future<void> _submitExercise(BuildContext context, int calories) async {
+  Future<void> _submitExercise(BuildContext context, int? calories) async {
     setState(() {
       isProcessing = true;
     });
@@ -170,11 +165,9 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
         ? exerciseType
         : exerciseController.text;
 
-    final manualCaloriesBurned = showCaloriesSlider ? calories : null;
-
     try {
-      await Provider.of<WellnessService>(context, listen: false).logExercise(
-          exerciseName, exerciseType, exerciseIntensity, manualCaloriesBurned);
+      await Provider.of<WellnessService>(context, listen: false)
+          .logExercise(exerciseName, exerciseType, exerciseIntensity, calories);
 
       Navigator.pop(context);
     } catch (e) {
