@@ -21,7 +21,16 @@ class _StartupViewState extends State<StartupView> {
   Future<void> initalizeApp() async {
     print('Initializing app...');
     final userService = Provider.of<UserService>(context, listen: false);
-    await userService.initializeUser();
+    try {
+      await userService.initializeUser();
+    } catch (e) {
+      print('Error initializing user: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Could not log in with stored credentials. Please log in again.')),
+      );
+    }
 
     // Simulate a delay to show the loading spinner
     await Future.delayed(const Duration(seconds: 1));

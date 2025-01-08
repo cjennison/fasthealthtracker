@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:fasthealthcheck/services/user_service.dart';
 
 class VerificationView extends StatefulWidget {
-  const VerificationView({Key? key}) : super(key: key);
+  const VerificationView({super.key});
 
   @override
   _VerificationViewState createState() => _VerificationViewState();

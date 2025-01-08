@@ -30,6 +30,7 @@ class UserService extends ChangeNotifier {
         await getCurrentUser();
       } catch (e) {
         print("Error fetching user: $e");
+        rethrow;
       }
     }
   }
@@ -51,8 +52,7 @@ class UserService extends ChangeNotifier {
 
       return user;
     } catch (e) {
-      print("Error fetching user: $e");
-      return null;
+      rethrow;
     }
   }
 
@@ -80,11 +80,15 @@ class UserService extends ChangeNotifier {
     LocalStorageService().saveAuthToken(result['token']);
 
     // Fetch currentUser and save it
-    User? currentUser = await getCurrentUser();
-    if (currentUser != null) {
-      return currentUser;
-    } else {
-      throw Exception("Error fetching user after registration");
+    try {
+      User? currentUser = await getCurrentUser();
+      if (currentUser != null) {
+        return currentUser;
+      } else {
+        throw Exception("Error fetching user after registration");
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 
