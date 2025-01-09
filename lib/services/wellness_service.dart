@@ -139,7 +139,7 @@ class WellnessService extends ChangeNotifier {
   //  NOTE: These current modify the object by its reference in the map
   //    Eventually the object should be provided by the function and then updated and replaced in the map
 
-  Future<void> addCalories(
+  Future<FoodEntry> addCalories(
       String foodName, String quantity, int? calories) async {
     final FoodEntryPayload payload = FoodEntryPayload(
         name: foodName, quantity: quantity, calories: calories);
@@ -148,14 +148,17 @@ class WellnessService extends ChangeNotifier {
       final data = await ApiWellnessService()
           .addFoodEntry(currentDateWellnessData.id, payload);
       print(data);
+
       FoodEntry foodEntry = FoodEntry.getFoodEntryFromJson(data);
 
       currentDateWellnessData.foodEntries.add(foodEntry);
+      notifyListeners();
+
+      return foodEntry;
     } catch (e) {
       print("Error adding food entry: $e");
+      rethrow;
     }
-
-    notifyListeners();
   }
 
   void addWater() {
@@ -182,12 +185,13 @@ class WellnessService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> logExercise(
-      String name, String type, String intensity, int? caloriesBurned) async {
+  Future<ExerciseEntry> logExercise(String name, String type, String intensity,
+      int duration, int? caloriesBurned) async {
     final ExerciseEntryPayload payload = ExerciseEntryPayload(
       name: name,
       type: type,
       intensity: intensity,
+      duration: duration,
       caloriesBurned: caloriesBurned,
     );
 
@@ -198,10 +202,13 @@ class WellnessService extends ChangeNotifier {
           ExerciseEntry.getExerciseEntryFromJson(data);
 
       currentDateWellnessData.exerciseEntries.add(exerciseEntry);
+      notifyListeners();
+
+      return exerciseEntry;
     } catch (e) {
       print("Error adding exercise entry: $e");
+      rethrow;
     }
-    notifyListeners();
   }
 
   //

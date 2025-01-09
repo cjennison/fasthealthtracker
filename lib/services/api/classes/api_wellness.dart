@@ -22,12 +22,14 @@ class ExerciseEntryPayload {
   final String name;
   final String type;
   final String intensity;
+  final int duration;
   int? caloriesBurned;
 
   ExerciseEntryPayload({
     required this.name,
     required this.type,
     required this.intensity,
+    required this.duration,
     this.caloriesBurned,
   });
 
@@ -36,6 +38,7 @@ class ExerciseEntryPayload {
       "name": name,
       "type": type,
       "intensity": intensity,
+      "duration": duration,
       "caloriesBurned": caloriesBurned,
     };
   }

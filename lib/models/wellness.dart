@@ -68,6 +68,7 @@ class ExerciseEntry {
   final String name;
   final String type;
   final String intensity;
+  final int duration;
   final int caloriesBurned;
 
   ExerciseEntry({
@@ -75,6 +76,7 @@ class ExerciseEntry {
     required this.name,
     required this.type,
     required this.intensity,
+    required this.duration,
     required this.caloriesBurned,
   });
 
@@ -83,6 +85,7 @@ class ExerciseEntry {
       'name': name,
       'type': type,
       'intensity': intensity,
+      'duration': duration,
       'caloriesBurned': caloriesBurned,
     };
   }
@@ -93,7 +96,8 @@ class ExerciseEntry {
       name: json['name'],
       type: json['type'],
       intensity: json['intensity'],
-      caloriesBurned: json['caloriesBurned'],
+      duration: parseIntFromUnknown(json['duration']),
+      caloriesBurned: parseIntFromUnknown(json['caloriesBurned']),
     );
   }
 }
