@@ -33,7 +33,7 @@ class _FoodInputViewState extends State<FoodInputView> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              "Added ${newEntry.name} with calories: ${newEntry.calories} to exercise log"),
+              "Added ${newEntry.name} with calories: ${newEntry.calories} to food log"),
           backgroundColor: Colors.green,
         ),
       );
