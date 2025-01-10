@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/constants/error_codes.dart';
 import 'package:fasthealthcheck/navigator_key.dart';
 import 'package:fasthealthcheck/services/api_service.dart';
 import 'package:fasthealthcheck/services/service_locator.dart';
@@ -23,7 +24,9 @@ class SessionManager {
 
     // Show snackbar or any other notification to inform the user
     ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-      SnackBar(content: Text('Session expired. Please log in again.')),
+      SnackBar(
+          content:
+              Text(errorMessages[ErrorCodes.invalidToken].userFriendlyMessage)),
     );
   }
 }

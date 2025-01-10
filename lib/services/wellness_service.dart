@@ -150,7 +150,6 @@ class WellnessService extends ChangeNotifier {
     try {
       final data = await apiWellnessService.addFoodEntry(
           currentDateWellnessData.id, payload);
-      print(data);
 
       FoodEntry foodEntry = FoodEntry.getFoodEntryFromJson(data);
 

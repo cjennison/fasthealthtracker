@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:fasthealthcheck/constants/error_codes.dart';
 import 'package:fasthealthcheck/models/wellness.dart';
+import 'package:fasthealthcheck/services/api/classes/api_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,6 +25,9 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
   double caloriesBurned = 100; // Default calories for slider
   int durationMinutes = 5; // Default duration
   bool isProcessing = false;
+
+  // Error states
+  bool hasContentModerationError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +68,12 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
                     const Text("Exercise Name", style: TextStyle(fontSize: 18)),
                     TextFormField(
                       controller: exerciseController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "What kind of exercise did you do?",
+                        errorText: hasContentModerationError
+                            ? errorMessages[ErrorCodes.contentModeration]
+                                .userFriendlyMessage
+                            : null,
                       ),
                       validator: (value) =>
                           value!.isEmpty ? "Please enter a name" : null,
@@ -191,6 +202,7 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
   Future<void> _submitExercise(BuildContext context, int? calories) async {
     setState(() {
       isProcessing = true;
+      hasContentModerationError = false;
     });
     final exerciseName = exerciseController.text.isEmpty
         ? exerciseType
@@ -215,14 +227,28 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
       );
 
       Navigator.pop(context);
-    } catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Failed to add exercise. Please try again."),
-          backgroundColor: Colors.red,
-        ),
-      );
+    } catch (err) {
+      if (err is ApiException) {
+        if (err.errorCode == ErrorCodes.contentModeration) {
+          setState(() {
+            hasContentModerationError = true;
+          });
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to add exercise: ${err.message}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Failed to add exercise. Please try again."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       setState(() {
         isProcessing = false;

@@ -26,7 +26,6 @@ class ApiService {
       Future<http.Response> Function() request) async {
     try {
       final response = await request();
-
       if (response.statusCode == 401) {
         final body = jsonDecode(response.body);
         if (body['errorCode'] == 'invalid_token') {
@@ -39,6 +38,20 @@ class ApiService {
       return response;
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Map<String, dynamic> handleApiResponse(http.Response response) {
+    final body = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return body as Map<String, dynamic>;
+    } else {
+      throw ApiException(
+        message: body['message'] as String,
+        statusCode: body['statusCode'] ?? 500,
+        errorCode: body['errorCode'] as String?,
+      );
     }
   }
 

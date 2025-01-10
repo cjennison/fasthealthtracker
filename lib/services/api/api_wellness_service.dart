@@ -7,17 +7,13 @@ class ApiWellnessService {
   final ApiService baseApiService;
   ApiWellnessService({required this.baseApiService});
 
-  // Fetch wellness data for a range of dates
-  Future<List<dynamic>> getWellnessDataByDateRange(
+  // Fetch wellness data for a range of dates (unused)
+  Future<Map<String, dynamic>> getWellnessDataByDateRange(
       String userId, String startDate, String endDate) async {
     final endpoint =
         "/wellness/users/$userId/daterange?startDate=$startDate&endDate=$endDate";
     final response = await baseApiService.get(endpoint);
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("Failed to fetch wellness data: ${response.body}");
-    }
+    return baseApiService.handleApiResponse(response);
   }
 
   // Fetch wellness data for a specific date
@@ -25,24 +21,14 @@ class ApiWellnessService {
       String userId, String date) async {
     final endpoint = "/wellness/users/$userId/$date";
     final response = await baseApiService.get(endpoint);
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception(
-          "Failed to fetch wellness data for date: ${response.body}");
-    }
+    return baseApiService.handleApiResponse(response);
   }
 
   // Fetch wellness streak number
   Future<Map<String, dynamic>> getWellnessStreak(String userId) async {
     final endpoint = "/wellness/users/$userId/streak";
     final response = await baseApiService.get(endpoint);
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception(
-          "Failed to fetch wellness data for date: ${response.body}");
-    }
+    return baseApiService.handleApiResponse(response);
   }
 
   // Add new wellness data for a specific date
@@ -54,18 +40,7 @@ class ApiWellnessService {
       "date": date,
       "glassesOfWater": glassesOfWater,
     });
-    try {
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception("Failed to parse wellness data");
-      }
-    } catch (e) {
-      throw ApiException(
-        message: "Failed to create wellness data",
-        statusCode: response.statusCode,
-      );
-    }
+    return baseApiService.handleApiResponse(response);
   }
 
   // Update wellness data by ID
@@ -76,11 +51,7 @@ class ApiWellnessService {
       "glassesOfWater": data["glassesOfWater"],
     };
     final response = await baseApiService.put(endpoint, payload);
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("Failed to update wellness data: ${response.body}");
-    }
+    return baseApiService.handleApiResponse(response);
   }
 
   // Add a food entry to wellness data
@@ -88,11 +59,7 @@ class ApiWellnessService {
       String wellnessDataId, FoodEntryPayload data) async {
     final endpoint = "/wellness/$wellnessDataId/food";
     final response = await baseApiService.post(endpoint, data.toJson());
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("Failed to add food entry: ${response.body}");
-    }
+    return baseApiService.handleApiResponse(response);
   }
 
   // Add an exercise entry to wellness data
@@ -100,11 +67,7 @@ class ApiWellnessService {
       String wellnessDataId, ExerciseEntryPayload data) async {
     final endpoint = "/wellness/$wellnessDataId/exercise";
     final response = await baseApiService.post(endpoint, data.toJson());
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("Failed to add exercise entry: ${response.body}");
-    }
+    return baseApiService.handleApiResponse(response);
   }
 
   // Add a food entry to wellness data
@@ -112,11 +75,7 @@ class ApiWellnessService {
       String wellnessDataId, String foodEntryId) async {
     final endpoint = "/wellness/$wellnessDataId/food/$foodEntryId";
     final response = await baseApiService.delete(endpoint);
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("Failed to add food entry: ${response.body}");
-    }
+    return baseApiService.handleApiResponse(response);
   }
 
   // Add an exercise entry to wellness data
@@ -124,10 +83,6 @@ class ApiWellnessService {
       String wellnessDataId, String exerciseEntryId) async {
     final endpoint = "/wellness/$wellnessDataId/exercise/$exerciseEntryId";
     final response = await baseApiService.delete(endpoint);
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("Failed to add exercise entry: ${response.body}");
-    }
+    return baseApiService.handleApiResponse(response);
   }
 }
