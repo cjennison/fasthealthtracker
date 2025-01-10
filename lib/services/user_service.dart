@@ -134,9 +134,7 @@ class UserService extends ChangeNotifier {
   Future<void> fetchUserVerificationStatus(String id) async {
     try {
       final data = await apiUserService.getUserVerificationStatus(id);
-      print("User verification status: $data");
       userIsVerified = data['isEmailVerified'] || data['isSmsVerified'];
-      print("User is verified: $userIsVerified");
     } catch (e) {
       print("Error fetching user verification status: $e");
     }
@@ -144,8 +142,7 @@ class UserService extends ChangeNotifier {
 
   Future<void> sendVerificationEmail(String email) async {
     try {
-      final data = await apiUserService.resendUserVerificationEmail(email);
-      print("Verification email sent: $data");
+      await apiUserService.resendUserVerificationEmail(email);
     } catch (e) {
       print("Error sending verification email: $e");
     }

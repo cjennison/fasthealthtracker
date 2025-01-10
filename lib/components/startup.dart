@@ -25,11 +25,8 @@ class _StartupViewState extends State<StartupView> {
       await userService.initializeUser();
     } catch (e) {
       print('Error initializing user: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Could not log in with stored credentials. Please log in again.')),
-      );
+      Navigator.pushReplacementNamed(context, '/splash');
+      return;
     }
 
     // Simulate a delay to show the loading spinner
@@ -42,7 +39,7 @@ class _StartupViewState extends State<StartupView> {
     if (userService.currentUser != null) {
       Navigator.pushReplacementNamed(context, '/app');
     } else {
-      Navigator.pushReplacementNamed(context, '/splash');
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 

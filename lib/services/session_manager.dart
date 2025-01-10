@@ -8,14 +8,22 @@ class SessionManager {
   final UserService userService = getIt<UserService>();
   final ApiService apiService = getIt<ApiService>();
 
-  void handleInvalidToken(BuildContext context) {
+  void handleInvalidToken() {
     userService.logout();
     apiService.removeAuthToken();
+
+    print(
+        "Invalid token detected. Logging out and navigating to login screen.");
 
     // Navigate to the login screen
     navigatorKey.currentState?.pushNamedAndRemoveUntil(
       '/splash',
       (route) => false, // Remove all previous routes
+    );
+
+    // Show snackbar or any other notification to inform the user
+    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+      SnackBar(content: Text('Session expired. Please log in again.')),
     );
   }
 }
