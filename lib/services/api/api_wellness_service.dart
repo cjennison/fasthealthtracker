@@ -3,18 +3,16 @@ import 'package:fasthealthcheck/services/api/classes/api_exception.dart';
 import 'package:fasthealthcheck/services/api/classes/api_wellness.dart';
 import 'package:fasthealthcheck/services/api_service.dart';
 
-class ApiWellnessService extends ApiService {
-  ApiWellnessService() : super.protected() {
-    // Set the auth token from the ApiService
-    setAuthToken(ApiService().authToken ?? '');
-  }
+class ApiWellnessService {
+  final ApiService baseApiService;
+  ApiWellnessService({required this.baseApiService});
 
   // Fetch wellness data for a range of dates
   Future<List<dynamic>> getWellnessDataByDateRange(
       String userId, String startDate, String endDate) async {
     final endpoint =
         "/wellness/users/$userId/daterange?startDate=$startDate&endDate=$endDate";
-    final response = await get(endpoint);
+    final response = await baseApiService.get(endpoint);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -26,7 +24,7 @@ class ApiWellnessService extends ApiService {
   Future<Map<String, dynamic>> getWellnessDataByDate(
       String userId, String date) async {
     final endpoint = "/wellness/users/$userId/$date";
-    final response = await get(endpoint);
+    final response = await baseApiService.get(endpoint);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -38,7 +36,7 @@ class ApiWellnessService extends ApiService {
   // Fetch wellness streak number
   Future<Map<String, dynamic>> getWellnessStreak(String userId) async {
     final endpoint = "/wellness/users/$userId/streak";
-    final response = await get(endpoint);
+    final response = await baseApiService.get(endpoint);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -51,7 +49,7 @@ class ApiWellnessService extends ApiService {
   Future<Map<String, dynamic>> createWellnessData(
       String userId, String date, int glassesOfWater) async {
     final endpoint = "/wellness";
-    final response = await post(endpoint, {
+    final response = await baseApiService.post(endpoint, {
       "userId": userId,
       "date": date,
       "glassesOfWater": glassesOfWater,
@@ -77,7 +75,7 @@ class ApiWellnessService extends ApiService {
     final payload = {
       "glassesOfWater": data["glassesOfWater"],
     };
-    final response = await put(endpoint, payload);
+    final response = await baseApiService.put(endpoint, payload);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -89,7 +87,7 @@ class ApiWellnessService extends ApiService {
   Future<Map<String, dynamic>> addFoodEntry(
       String wellnessDataId, FoodEntryPayload data) async {
     final endpoint = "/wellness/$wellnessDataId/food";
-    final response = await post(endpoint, data.toJson());
+    final response = await baseApiService.post(endpoint, data.toJson());
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -101,7 +99,7 @@ class ApiWellnessService extends ApiService {
   Future<Map<String, dynamic>> addExerciseEntry(
       String wellnessDataId, ExerciseEntryPayload data) async {
     final endpoint = "/wellness/$wellnessDataId/exercise";
-    final response = await post(endpoint, data.toJson());
+    final response = await baseApiService.post(endpoint, data.toJson());
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -113,7 +111,7 @@ class ApiWellnessService extends ApiService {
   Future<Map<String, dynamic>> deleteFoodEntry(
       String wellnessDataId, String foodEntryId) async {
     final endpoint = "/wellness/$wellnessDataId/food/$foodEntryId";
-    final response = await delete(endpoint);
+    final response = await baseApiService.delete(endpoint);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -125,7 +123,7 @@ class ApiWellnessService extends ApiService {
   Future<Map<String, dynamic>> deleteExerciseEntry(
       String wellnessDataId, String exerciseEntryId) async {
     final endpoint = "/wellness/$wellnessDataId/exercise/$exerciseEntryId";
-    final response = await delete(endpoint);
+    final response = await baseApiService.delete(endpoint);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {

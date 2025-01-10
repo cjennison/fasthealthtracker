@@ -1,4 +1,5 @@
 import 'package:fasthealthcheck/services/api/classes/api_wellness.dart';
+import 'package:fasthealthcheck/services/service_locator.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +17,8 @@ String formatToDateOnly(DateTime dateTime) {
 class WellnessService extends ChangeNotifier {
   // Constants
   static const int recommendedGlassesOfWater = 8;
+
+  final ApiWellnessService apiWellnessService = getIt<ApiWellnessService>();
 
   final Map<String, DateWellnessData> _wellnessData = {};
   final DateTime today = DateTime.now();
@@ -87,7 +90,7 @@ class WellnessService extends ChangeNotifier {
     print("Initializing wellness data for $_selectedDate");
     await getOrCreateDateWellnessData(_selectedDate);
 
-    final streakData = await ApiWellnessService()
+    final streakData = await apiWellnessService
         .getWellnessStreak(UserService().currentUser!.id);
     streak = streakData['streak'];
 
@@ -103,8 +106,8 @@ class WellnessService extends ChangeNotifier {
     final String formattedDate = formatToDateOnly(date);
     User user = UserService().currentUser!;
     try {
-      final wellnessDataJson = await ApiWellnessService()
-          .getWellnessDataByDate(user.id, formattedDate);
+      final wellnessDataJson = await apiWellnessService.getWellnessDataByDate(
+          user.id, formattedDate);
 
       DateWellnessData wellnessData =
           DateWellnessData.getWellnessDataFromJson(wellnessDataJson);
@@ -114,8 +117,8 @@ class WellnessService extends ChangeNotifier {
     } catch (e) {
       print(e);
       // Create a new DateWellnessData object for the date
-      final newWellnessData = await ApiWellnessService()
-          .createWellnessData(UserService().currentUser!.id, formattedDate, 0);
+      final newWellnessData = await apiWellnessService.createWellnessData(
+          UserService().currentUser!.id, formattedDate, 0);
 
       final wellnessData =
           DateWellnessData.getWellnessDataFromJson(newWellnessData);
@@ -127,7 +130,7 @@ class WellnessService extends ChangeNotifier {
 
   Future<void> updateWellnessData(DateWellnessData wellnessData) async {
     try {
-      await ApiWellnessService().updateWellnessData(wellnessData.id, {
+      await apiWellnessService.updateWellnessData(wellnessData.id, {
         'glassesOfWater': wellnessData.glassesOfWater,
       });
     } catch (e) {
@@ -145,8 +148,8 @@ class WellnessService extends ChangeNotifier {
         name: foodName, quantity: quantity, calories: calories);
 
     try {
-      final data = await ApiWellnessService()
-          .addFoodEntry(currentDateWellnessData.id, payload);
+      final data = await apiWellnessService.addFoodEntry(
+          currentDateWellnessData.id, payload);
       print(data);
 
       FoodEntry foodEntry = FoodEntry.getFoodEntryFromJson(data);
@@ -177,8 +180,8 @@ class WellnessService extends ChangeNotifier {
     FoodEntry foodEntry = currentDateWellnessData.foodEntries[index];
 
     // Remove from API (Asynchronous operation)
-    ApiWellnessService()
-        .deleteFoodEntry(currentDateWellnessData.id, foodEntry.id);
+    apiWellnessService.deleteFoodEntry(
+        currentDateWellnessData.id, foodEntry.id);
 
     // Remove local Entry
     currentDateWellnessData.foodEntries.removeAt(index);
@@ -196,8 +199,8 @@ class WellnessService extends ChangeNotifier {
     );
 
     try {
-      final data = await ApiWellnessService()
-          .addExerciseEntry(currentDateWellnessData.id, payload);
+      final data = await apiWellnessService.addExerciseEntry(
+          currentDateWellnessData.id, payload);
       ExerciseEntry exerciseEntry =
           ExerciseEntry.getExerciseEntryFromJson(data);
 
@@ -217,8 +220,8 @@ class WellnessService extends ChangeNotifier {
         currentDateWellnessData.exerciseEntries[index];
 
     // Remove from API (Asynchronous operation)
-    ApiWellnessService()
-        .deleteExerciseEntry(currentDateWellnessData.id, exerciseEntry.id);
+    apiWellnessService.deleteExerciseEntry(
+        currentDateWellnessData.id, exerciseEntry.id);
 
     // Remove local Entry
     currentDateWellnessData.exerciseEntries.removeAt(index);

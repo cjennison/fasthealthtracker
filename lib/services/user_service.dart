@@ -2,10 +2,13 @@ import 'package:fasthealthcheck/models/user.dart';
 import 'package:fasthealthcheck/services/api/api_user_service.dart';
 import 'package:fasthealthcheck/services/api_service.dart';
 import 'package:fasthealthcheck/services/local_storage_service.dart';
+import 'package:fasthealthcheck/services/service_locator.dart';
 import 'package:flutter/material.dart';
 
 class UserService extends ChangeNotifier {
   static final UserService _instance = UserService._internal();
+  final ApiService apiService = getIt<ApiService>();
+  final ApiUserService apiUserService = getIt<ApiUserService>();
 
   factory UserService() {
     return _instance;
@@ -23,7 +26,8 @@ class UserService extends ChangeNotifier {
     // Check if an Auth token exists, if so attempt to get the current user from the API
     final authToken = await LocalStorageService().fetchAuthToken();
     if (authToken != null) {
-      ApiService().setAuthToken(authToken);
+      apiService.setAuthToken(authToken);
+      LocalStorageService().saveAuthToken(authToken);
 
       // Fetch currentUser
       try {
@@ -43,9 +47,11 @@ class UserService extends ChangeNotifier {
   Future<User?> getCurrentUser() async {
     try {
       // Fetch user details
-      final userData = await ApiService().fetchCurrentUser();
+      final userData = await apiService.fetchCurrentUser();
       final User user = getUserFromJson(userData);
       saveUser(user);
+
+      print(user);
 
       // Fetch user verification status async (No await)
       fetchUserVerificationStatus(user.id);
@@ -64,7 +70,7 @@ class UserService extends ChangeNotifier {
     saveUser(updatedUser);
 
     try {
-      await ApiUserService().updateUserProfile(id, userProfile.toJson());
+      await apiUserService.updateUserProfile(id, userProfile.toJson());
     } catch (e) {
       print("Error updating user profile: $e");
     }
@@ -75,8 +81,8 @@ class UserService extends ChangeNotifier {
     required String email,
     required String password,
   }) async {
-    final result = await ApiService().signup(email, username, password);
-    ApiService().setAuthToken(result['token']);
+    final result = await apiService.signup(email, username, password);
+    apiService.setAuthToken(result['token']);
     LocalStorageService().saveAuthToken(result['token']);
 
     // Fetch currentUser and save it
@@ -95,8 +101,8 @@ class UserService extends ChangeNotifier {
   Future<void> login(
       BuildContext context, String email, String password) async {
     try {
-      final result = await ApiService().login(email, password);
-      ApiService().setAuthToken(result['token']);
+      final result = await apiService.login(email, password);
+      apiService.setAuthToken(result['token']);
       LocalStorageService().saveAuthToken(result['token']);
 
       // Fetch currentUser and save it
@@ -127,7 +133,7 @@ class UserService extends ChangeNotifier {
 
   Future<void> fetchUserVerificationStatus(String id) async {
     try {
-      final data = await ApiUserService().getUserVerificationStatus(id);
+      final data = await apiUserService.getUserVerificationStatus(id);
       print("User verification status: $data");
       userIsVerified = data['isEmailVerified'] || data['isSmsVerified'];
       print("User is verified: $userIsVerified");
@@ -138,7 +144,7 @@ class UserService extends ChangeNotifier {
 
   Future<void> sendVerificationEmail(String email) async {
     try {
-      final data = await ApiUserService().resendUserVerificationEmail(email);
+      final data = await apiUserService.resendUserVerificationEmail(email);
       print("Verification email sent: $data");
     } catch (e) {
       print("Error sending verification email: $e");
@@ -148,8 +154,8 @@ class UserService extends ChangeNotifier {
   Future<void> verifyUser(
       String id, String email, String verificationCode) async {
     try {
-      final data = await ApiUserService()
-          .postVerificationCode(id, email, verificationCode);
+      final data = await apiUserService.postVerificationCode(
+          id, email, verificationCode);
       print("User verified: $data");
       fetchUserVerificationStatus(id);
     } catch (e) {
@@ -160,6 +166,6 @@ class UserService extends ChangeNotifier {
   void logout() {
     _currentUser = null;
     LocalStorageService().clearAllData();
-    ApiService().removeAuthToken();
+    apiService.removeAuthToken();
   }
 }

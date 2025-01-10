@@ -1,22 +1,17 @@
 import 'dart:convert';
-import 'package:fasthealthcheck/services/api/classes/api_exception.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'package:fasthealthcheck/services/api/classes/api_exception.dart';
 
 class ApiService {
-  static final ApiService _instance = ApiService._internal();
-  factory ApiService() => _instance;
-  ApiService._internal();
+  final String baseUrl;
 
-  ApiService.protected();
-
-  String? get baseUrl {
-    return dotenv.get('API_BASE_URL');
-  }
+  ApiService({required this.baseUrl});
 
   String? _authToken;
 
   void setAuthToken(String token) {
+    print("Setting auth token: $token");
     _authToken = token;
   }
 
@@ -52,6 +47,7 @@ class ApiService {
 
   Future<http.Response> get(String endpoint) async {
     final url = Uri.parse("$baseUrl$endpoint");
+    print("Auth token: $_authToken");
     return await http.get(
       url,
       headers: {
@@ -78,6 +74,7 @@ class ApiService {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       _authToken = data['token'];
+      print(data);
       return data;
     } else {
       throw ApiException(

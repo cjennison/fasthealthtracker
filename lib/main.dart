@@ -12,10 +12,14 @@ import 'package:fasthealthcheck/components/home/home_view.dart';
 import 'package:fasthealthcheck/components/log/activity_log_view.dart';
 import 'package:fasthealthcheck/services/wellness_service.dart';
 import 'package:fasthealthcheck/services/user_service.dart';
+import 'package:fasthealthcheck/services/service_locator.dart';
+
 import 'package:fasthealthcheck/components/startup.dart';
+import 'package:fasthealthcheck/navigator_key.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
+  setupServiceLocator();
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => UserService()),
@@ -39,6 +43,8 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         home: StartupView(),
+        navigatorKey:
+            navigatorKey, // Allows global navigation from anywhere in the app
         routes: {
           '/splash': (context) => const SplashView(),
           '/login': (context) => const LoginView(),
