@@ -1,18 +1,24 @@
+import 'package:fasthealthcheck/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:fasthealthcheck/services/wellness_service.dart';
+import 'package:fasthealthcheck/services/user_service.dart';
 
 class WellnessBars extends StatelessWidget {
   const WellnessBars({super.key});
 
   @override
   Widget build(BuildContext context) {
+    UserService userService = Provider.of<UserService>(context);
+    User currentUser = userService.currentUser!;
+
     return Consumer<WellnessService>(
       builder: (context, wellnessService, child) {
         final double caloriesConsumed =
             wellnessService.caloriesConsumed.toDouble();
-        final double caloriesAvailable = 2000.0; // Example target
+        final double caloriesAvailable =
+            currentUser.userProfile!.calorieGoal.toDouble();
 
         // If the calories consumed are greater than the target, set max to the target
         double maxCalories = caloriesConsumed > caloriesAvailable

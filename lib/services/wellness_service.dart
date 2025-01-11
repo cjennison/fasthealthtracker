@@ -1,5 +1,6 @@
 import 'package:fasthealthcheck/services/api/classes/api_wellness.dart';
 import 'package:fasthealthcheck/services/service_locator.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +20,7 @@ class WellnessService extends ChangeNotifier {
   static const int recommendedGlassesOfWater = 8;
 
   final ApiWellnessService apiWellnessService = getIt<ApiWellnessService>();
-
+  final UserService userService = GetIt.instance<UserService>();
   final Map<String, DateWellnessData> _wellnessData = {};
   final DateTime today = DateTime.now();
   DateTime _selectedDate = DateTime.now();
@@ -72,19 +73,13 @@ class WellnessService extends ChangeNotifier {
       }();
 
   int get caloriesRemaining {
+    User currentUser = UserService().currentUser!;
     final consumed = caloriesConsumed;
     final burned = exerciseBurned;
-    return 2000 - consumed + burned;
+    return currentUser.userProfile!.calorieGoal - consumed + burned;
   }
 
   int get currentStreak => streak;
-
-  /// dayWellnessData is a map with the following structure:
-  /// {
-  ///  foodEntries: List<Map<String, dynamic>>,
-  ///  exerciseEntries: List<Map<String, dynamic>>,
-  ///  _glassesOfWater: int,
-  /// }
 
   Future<void> initializeWellnessData() async {
     print("Initializing wellness data for $_selectedDate");
