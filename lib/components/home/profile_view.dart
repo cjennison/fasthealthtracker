@@ -13,20 +13,69 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
+  late UserService userService;
   bool isEditing = false;
   late int age;
   late double weight;
+  late double height;
+  late String activityLevel;
+  late String units;
+  double weightMax = 350.0;
+  double weightMin = 70.0;
+  double heightMax = 250.0;
+  double heightMin = 100.0;
 
   @override
   void initState() {
     super.initState();
+    userService = Provider.of<UserService>(context, listen: false);
+
     final user = Provider.of<UserService>(context, listen: false).currentUser;
     if (user != null) {
-      age = user.userProfile!.age;
-      weight = user.userProfile!.weight;
+      setProfileValues(user);
     } else {
       print("User is null");
     }
+  }
+
+  void setProfileValues(User user) {
+    // Set base values from the stored data
+    age = user.userProfile!.age;
+
+    activityLevel = user.userProfile!.activityLevel;
+    units = user.userPreferences!.weightHeightUnits;
+
+    double storedWeight = user.userProfile!.weight; // Metric
+    double storedHeight = user.userProfile!.height; // Metric
+
+    // Convert for visual display if the user preference is imperial
+    if (units == 'imperial') {
+      weight = UserProfile.convertWeightToImperialUnits(storedWeight);
+      height = UserProfile.convertHeightToImperialUnits(storedHeight);
+      _setImperialRanges();
+    } else {
+      weight = storedWeight;
+      height = storedHeight;
+      _setMetricRanges();
+    }
+  }
+
+  void _setMetricRanges() {
+    setState(() {
+      weightMin = 70.0;
+      weightMax = 350.0;
+      heightMin = 100.0;
+      heightMax = 250.0;
+    });
+  }
+
+  void _setImperialRanges() {
+    setState(() {
+      weightMin = 150.0;
+      weightMax = 500.0;
+      heightMin = 35.0;
+      heightMax = 100.0;
+    });
   }
 
   void _toggleEditMode() {
@@ -40,15 +89,55 @@ class _ProfileViewState extends State<ProfileView> {
     final currentUser = userService.currentUser;
 
     if (currentUser != null) {
+      // Get the metric version of height and weight if units are not metric
+      double metricWeight = units == 'imperial'
+          ? UserProfile.convertWeightToMetricUnits(weight)
+          : weight;
+      double metricHeight = units == 'imperial'
+          ? UserProfile.convertHeightToMetricUnits(height)
+          : height;
+
       UserProfile updatedProfile = currentUser.userProfile!.copyWith(
         age: age,
-        weight: weight,
+        weight: metricWeight,
+        height: metricHeight,
+        activityLevel: activityLevel,
       );
       userService.updateUserProfile(currentUser.id, updatedProfile);
+
+      UserPreferences updatedPreferences =
+          currentUser.userPreferences!.copyWith(
+        weightHeightUnits: units,
+      );
+      userService.updateUserPreferences(currentUser.id, updatedPreferences);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated successfully!')),
+      );
     }
 
     setState(() {
       isEditing = false;
+    });
+  }
+
+  void _changeUnits(String newUnits) {
+    setState(() {
+      units = newUnits;
+
+      if (units == 'imperial') {
+        _setImperialRanges();
+
+        weight = UserProfile.convertWeightToImperialUnits(weight);
+        height = UserProfile.convertHeightToImperialUnits(height);
+      } else {
+        _setMetricRanges();
+        weight = UserProfile.convertWeightToMetricUnits(weight);
+        height = UserProfile.convertHeightToMetricUnits(height);
+      }
+
+      weight = weight.clamp(weightMin, weightMax);
+      height = height.clamp(heightMin, heightMax);
     });
   }
 
@@ -62,6 +151,9 @@ class _ProfileViewState extends State<ProfileView> {
   Widget build(BuildContext context) {
     final userService = Provider.of<UserService>(context);
     final user = userService.currentUser;
+
+    String weightUnits = units == 'metric' ? 'kgs' : 'lbs';
+    String heightUnits = units == 'metric' ? 'cm' : 'inches';
 
     if (user == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -120,26 +212,85 @@ class _ProfileViewState extends State<ProfileView> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  const Text('Weight (lbs):', style: TextStyle(fontSize: 18)),
+                  // Height Slider
                   Row(
                     children: [
-                      Text('${weight.toStringAsFixed(1)} lbs',
-                          style: const TextStyle(fontSize: 16)),
+                      Text(
+                          'Weight ($weightUnits): ${weight.toStringAsFixed(0)}'),
                       Expanded(
                         child: Slider(
                           value: weight,
-                          min: 40,
-                          max: 400,
-                          divisions: 360,
-                          label: weight.toStringAsFixed(1),
+                          min: weightMin,
+                          max: weightMax,
+                          divisions: (weightMax - weightMin).toInt(),
+                          label: weight.toStringAsFixed(0),
                           onChanged: (value) {
                             setState(() {
-                              weight = value;
+                              // Round to nearest integer
+                              weight = value.roundToDouble();
                             });
                           },
                         ),
                       ),
                     ],
+                  ),
+                  // Activity Level Dropdown
+                  DropdownButtonFormField<String>(
+                    value: activityLevel,
+                    items: const [
+                      DropdownMenuItem(value: 'low', child: Text('Low')),
+                      DropdownMenuItem(
+                          value: 'moderate', child: Text('Moderate')),
+                      DropdownMenuItem(value: 'active', child: Text('Active')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        activityLevel = value!;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Activity Level',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Height Slider
+                  Row(
+                    children: [
+                      Text(
+                          'Height ($heightUnits): ${height.toStringAsFixed(0)}'),
+                      Expanded(
+                        child: Slider(
+                          value: height,
+                          min: heightMin,
+                          max: heightMax,
+                          divisions: (heightMax - heightMin).toInt(),
+                          label: height.toStringAsFixed(0),
+                          onChanged: (value) {
+                            setState(() {
+                              height = value.roundToDouble();
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  // Units Dropdown
+                  DropdownButtonFormField<String>(
+                    value: units,
+                    items: const [
+                      DropdownMenuItem(value: 'metric', child: Text('Metric')),
+                      DropdownMenuItem(
+                          value: 'imperial', child: Text('Imperial')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _changeUnits(value!);
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Units',
+                    ),
                   ),
                 ],
               )
@@ -153,7 +304,22 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Weight: ${user.userProfile!.weight} lbs',
+                    'Weight: $weight $weightUnits',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Height: $height $heightUnits',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Activity Level: ${user.userProfile!.activityLevel}',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Units: ${user.userPreferences!.weightHeightUnits}',
                     style: const TextStyle(fontSize: 18),
                   ),
                 ],

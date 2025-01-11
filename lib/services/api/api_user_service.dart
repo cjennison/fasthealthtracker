@@ -32,4 +32,21 @@ class ApiUserService {
         await baseApiService.put("/users/$id/profile", userProfile);
     return baseApiService.handleApiResponse(response);
   }
+
+  Future<Map<String, dynamic>> updateUserPreferences(
+      String id, Map<String, dynamic> userPreferences) async {
+    final response =
+        await baseApiService.put("/users/$id/preferences", userPreferences);
+    return baseApiService.handleApiResponse(response);
+  }
+
+  Future<Map<String, dynamic>> getCalorieTarget(
+      String id, String? activityLevel) async {
+    String url = "/users/$id/recommended-calorie-goal";
+    if (activityLevel != null) {
+      url += "?activityLevel=$activityLevel";
+    }
+    final response = await baseApiService.get(url);
+    return baseApiService.handleApiResponse(response);
+  }
 }

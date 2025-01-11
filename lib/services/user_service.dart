@@ -48,7 +48,7 @@ class UserService extends ChangeNotifier {
     try {
       // Fetch user details
       final userData = await apiService.fetchCurrentUser();
-      final User user = getUserFromJson(userData);
+      final User user = User.getUserFromJson(userData);
       saveUser(user);
 
       print(user);
@@ -63,6 +63,7 @@ class UserService extends ChangeNotifier {
   }
 
   Future<void> updateUserProfile(String id, UserProfile userProfile) async {
+    print("Updating user profile: $userProfile");
     // Create a new map of the User object with the updated userProfile
     final updatedUser = _currentUser!.copyWith(userProfile: userProfile);
 
@@ -73,6 +74,22 @@ class UserService extends ChangeNotifier {
       await apiUserService.updateUserProfile(id, userProfile.toJson());
     } catch (e) {
       print("Error updating user profile: $e");
+    }
+  }
+
+  Future<void> updateUserPreferences(
+      String id, UserPreferences userPreferences) async {
+    // Create a new map of the User object with the updated userProfile
+    final updatedUser =
+        _currentUser!.copyWith(userPreferences: userPreferences);
+
+    //  Optimistic save
+    saveUser(updatedUser);
+
+    try {
+      await apiUserService.updateUserPreferences(id, userPreferences.toJson());
+    } catch (e) {
+      print("Error updating user preferences: $e");
     }
   }
 
@@ -117,18 +134,13 @@ class UserService extends ChangeNotifier {
     }
   }
 
-  User getUserFromJson(Map<String, dynamic> userData) {
-    return User.fromJson({
-      "id": userData['_id'],
-      "username": userData['username'],
-      "email": userData['email'],
-      "userProfile": {
-        "id": userData['userProfile']['_id'],
-        "age": userData['userProfile']['age'],
-        "weight": userData['userProfile']['weight'],
-        "activityLevel": userData['userProfile']['activityLevel'],
-      },
-    });
+  Future<int> getCalorieTarget(String id, String? activityLevel) async {
+    try {
+      final data = await apiUserService.getCalorieTarget(id, activityLevel);
+      return data['recommendedCalorieGoal'];
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> fetchUserVerificationStatus(String id) async {

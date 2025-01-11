@@ -129,12 +129,8 @@ class _NewUserViewState extends State<NewUserView> {
           _isRegistering = false;
         });
 
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => OnboardingLifestyleView(
-                      newUser: newUser,
-                    )));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => OnboardingLifestyleView()));
       } catch (e) {
         setState(() {
           _isRegistering = false;
