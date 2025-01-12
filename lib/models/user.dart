@@ -56,7 +56,7 @@ class UserProfile {
 
   @override
   String toString() {
-    return 'UserProfile{id: $id, age: $age, weight: $weight, height: $height, activityLevel: $activityLevel}';
+    return 'UserProfile{id: $id, age: $age, weight: $weight, height: $height, activityLevel: $activityLevel, calorieGoal: $calorieGoal}';
   }
 
   static double convertWeightToImperialUnits(double weight) {

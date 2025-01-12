@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/components/shared/calorie_goal_card.dart';
 import 'package:fasthealthcheck/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,6 @@ class _ProfileViewState extends State<ProfileView> {
   late int age;
   late double weight;
   late double height;
-  late String activityLevel;
   late String units;
   double weightMax = 350.0;
   double weightMin = 70.0;
@@ -42,7 +42,6 @@ class _ProfileViewState extends State<ProfileView> {
     // Set base values from the stored data
     age = user.userProfile!.age;
 
-    activityLevel = user.userProfile!.activityLevel;
     units = user.userPreferences!.weightHeightUnits;
 
     double storedWeight = user.userProfile!.weight; // Metric
@@ -101,7 +100,6 @@ class _ProfileViewState extends State<ProfileView> {
         age: age,
         weight: metricWeight,
         height: metricHeight,
-        activityLevel: activityLevel,
       );
       userService.updateUserProfile(currentUser.id, updatedProfile);
 
@@ -234,24 +232,6 @@ class _ProfileViewState extends State<ProfileView> {
                       ),
                     ],
                   ),
-                  // Activity Level Dropdown
-                  DropdownButtonFormField<String>(
-                    value: activityLevel,
-                    items: const [
-                      DropdownMenuItem(value: 'low', child: Text('Low')),
-                      DropdownMenuItem(
-                          value: 'moderate', child: Text('Moderate')),
-                      DropdownMenuItem(value: 'active', child: Text('Active')),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        activityLevel = value!;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Activity Level',
-                    ),
-                  ),
                   const SizedBox(height: 16),
                   // Height Slider
                   Row(
@@ -314,11 +294,6 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Activity Level: ${user.userProfile!.activityLevel}',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
                     'Units: ${user.userPreferences!.weightHeightUnits}',
                     style: const TextStyle(fontSize: 18),
                   ),
@@ -363,6 +338,14 @@ class _ProfileViewState extends State<ProfileView> {
                         ),
                       ),
                     ],
+            ),
+            SizedBox(height: 20),
+            Center(
+              child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 600,
+                  ),
+                  child: const CalorieGoalCard()),
             ),
           ],
         ),
