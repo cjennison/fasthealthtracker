@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:fasthealthcheck/services/api/classes/api_exception.dart';
 import 'package:fasthealthcheck/services/api/classes/api_wellness.dart';
 import 'package:fasthealthcheck/services/api_service.dart';
 

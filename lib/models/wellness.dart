@@ -32,14 +32,14 @@ class FoodEntry {
   final String name;
   final String quantity;
   final int calories;
-  final FoodItem? foodItem;
+  final List<FoodItem> foodItems;
 
   FoodEntry({
     required this.id,
     required this.name,
     required this.quantity,
     required this.calories,
-    this.foodItem,
+    required this.foodItems,
   });
 
   Map<String, dynamic> toJson() {
@@ -56,9 +56,9 @@ class FoodEntry {
       name: json['name'],
       quantity: json['quantity'],
       calories: parseIntFromUnknown(json['calories']),
-      foodItem: json['foodItem'] != null
-          ? FoodItem.getFoodItemFromJson(json['foodItem'])
-          : null,
+      foodItems: (json['foodItems'] as List)
+          .map((item) => FoodItem.getFoodItemFromJson(item))
+          .toList(),
     );
   }
 }
