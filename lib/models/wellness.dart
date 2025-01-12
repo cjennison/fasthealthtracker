@@ -11,16 +11,19 @@ int parseIntFromUnknown(dynamic value) {
 }
 
 class FoodItem {
+  final String name;
   final String units;
   final int cloriesPerUnit;
 
   FoodItem({
+    required this.name,
     required this.units,
     required this.cloriesPerUnit,
   });
 
   static FoodItem getFoodItemFromJson(Map<String, dynamic> json) {
     return FoodItem(
+      name: json['name'],
       units: json['units'],
       cloriesPerUnit: parseIntFromUnknown(json['cloriesPerUnit']),
     );

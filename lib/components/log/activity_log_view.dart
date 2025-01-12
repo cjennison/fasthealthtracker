@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/models/wellness.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +14,16 @@ class ActivityLogView extends StatelessWidget {
 
     String formattedDate =
         DateFormat.yMMMMd().format(wellnessService.selectedDate);
+
+    String generateSubText(FoodEntry foodEntry) {
+      List<FoodItem> foodItems = foodEntry.foodItems;
+      String foodListString = "";
+      if (foodItems.isNotEmpty) {
+        foodListString = foodItems.map((item) => item.name).join(", ");
+        return "$foodListString (${foodEntry.quantity})";
+      }
+      return "${foodEntry.quantity} of ${foodEntry.name}";
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -74,7 +85,7 @@ class ActivityLogView extends StatelessWidget {
                               icon: Icons.restaurant,
                               iconColor: Colors.orange,
                               name: foodEntry.name,
-                              subText: foodEntry.quantity,
+                              subText: generateSubText(foodEntry),
                               calories: foodEntry.calories,
                               onDelete: () {
                                 _showDeleteConfirmationDialog(context, () {

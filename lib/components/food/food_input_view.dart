@@ -127,7 +127,7 @@ class _FoodInputViewState extends State<FoodInputView> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Set Calories Burned",
+                        const Text("Set Calories",
                             style: TextStyle(fontSize: 18)),
                         Row(
                           children: [
