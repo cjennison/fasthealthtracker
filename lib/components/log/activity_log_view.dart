@@ -15,7 +15,7 @@ class ActivityLogView extends StatelessWidget {
     String formattedDate =
         DateFormat.yMMMMd().format(wellnessService.selectedDate);
 
-    String generateSubText(FoodEntry foodEntry) {
+    String generateFoodSubText(FoodEntry foodEntry) {
       List<FoodItem> foodItems = foodEntry.foodItems;
       String foodListString = "";
       if (foodItems.isNotEmpty) {
@@ -23,6 +23,10 @@ class ActivityLogView extends StatelessWidget {
         return "$foodListString (${foodEntry.quantity})";
       }
       return "${foodEntry.quantity} of ${foodEntry.name}";
+    }
+
+    String generateExerciseSubText(ExerciseEntry exerciseEntry) {
+      return "${exerciseEntry.type} (${exerciseEntry.intensity}, ${exerciseEntry.duration} min)";
     }
 
     return Scaffold(
@@ -85,7 +89,7 @@ class ActivityLogView extends StatelessWidget {
                               icon: Icons.restaurant,
                               iconColor: Colors.orange,
                               name: foodEntry.name,
-                              subText: generateSubText(foodEntry),
+                              subText: generateFoodSubText(foodEntry),
                               calories: foodEntry.calories,
                               onDelete: () {
                                 _showDeleteConfirmationDialog(context, () {
@@ -105,8 +109,7 @@ class ActivityLogView extends StatelessWidget {
                               icon: Icons.fitness_center,
                               iconColor: Colors.blue,
                               name: exerciseEntry.name,
-                              subText:
-                                  "${exerciseEntry.type} (${exerciseEntry.intensity})",
+                              subText: generateExerciseSubText(exerciseEntry),
                               calories: exerciseEntry.caloriesBurned,
                               onDelete: () {
                                 _showDeleteConfirmationDialog(context, () {
