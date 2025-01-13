@@ -115,6 +115,12 @@ class _LoginViewState extends State<LoginView> {
                     },
                     onFieldSubmitted: (value) => login(),
                   ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/forgot-password');
+                    },
+                    child: const Text('Forgot Password?'),
+                  ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(

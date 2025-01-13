@@ -1,3 +1,5 @@
+import 'package:fasthealthcheck/components/auth/forgotten_password_view.dart';
+import 'package:fasthealthcheck/components/auth/reset_password_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -54,6 +56,8 @@ class MyApp extends StatelessWidget {
           '/exercise': (context) => const ExerciseInputView(),
           '/log': (context) => const ActivityLogView(),
           '/profile': (context) => const ProfileView(),
+          '/forgot-password': (context) => const ForgottenPasswordView(),
+          '/reset-password': (context) => const ResetPasswordView(),
         },
         onUnknownRoute: (settings) => MaterialPageRoute(
               builder: (context) => Scaffold(

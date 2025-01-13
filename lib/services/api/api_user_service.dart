@@ -56,4 +56,18 @@ class ApiUserService {
     final response = await baseApiService.get(url);
     return baseApiService.handleApiResponse(response);
   }
+
+  Future<Map<String, dynamic>> sendForgottenPasswordRequest(
+      String email) async {
+    final response =
+        await baseApiService.post("/auth/forgotten-password", {"email": email});
+    return baseApiService.handleApiResponse(response);
+  }
+
+  Future<Map<String, dynamic>> submitForgottenPasswordForm(
+      Map<String, dynamic> forgottenPasswordSubmitPayload) async {
+    final response = await baseApiService.post(
+        "/auth/submit-forgotten-password", forgottenPasswordSubmitPayload);
+    return baseApiService.handleApiResponse(response);
+  }
 }
