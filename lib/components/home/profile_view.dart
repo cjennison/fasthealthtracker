@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/components/home/profile/account_settings.dart';
 import 'package:fasthealthcheck/components/shared/calorie_goal_card.dart';
 import 'package:fasthealthcheck/models/user.dart';
 import 'package:flutter/material.dart';
@@ -188,165 +189,184 @@ class _ProfileViewState extends State<ProfileView> {
               ],
             ),
             const SizedBox(height: 20),
-            userService.isUserVerified
-                ? Row(
-                    children: const [
-                      Icon(Icons.check, color: Colors.green),
-                      SizedBox(width: 8),
-                      Text('Email verified'),
-                    ],
-                  )
-                : const VerificationView(),
-            if (isEditing)
-              Column(
+            Flexible(
+              child: SingleChildScrollView(
+                  child: (Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Age:', style: TextStyle(fontSize: 18)),
-                  TextFormField(
-                    initialValue: age.toString(),
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      age = int.tryParse(value) ?? age;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  // Height Slider
-                  Row(
-                    children: [
-                      Text(
-                          'Weight ($weightUnits): ${weight.toStringAsFixed(0)}'),
-                      Expanded(
-                        child: Slider(
-                          value: weight,
-                          min: weightMin,
-                          max: weightMax,
-                          divisions: (weightMax - weightMin).toInt(),
-                          label: weight.toStringAsFixed(0),
+                  userService.isUserVerified
+                      ? Row(
+                          children: const [
+                            Icon(Icons.check, color: Colors.green),
+                            SizedBox(width: 8),
+                            Text('Email verified'),
+                          ],
+                        )
+                      : const VerificationView(),
+                  if (isEditing)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Age:', style: TextStyle(fontSize: 18)),
+                        TextFormField(
+                          initialValue: age.toString(),
+                          keyboardType: TextInputType.number,
                           onChanged: (value) {
-                            setState(() {
-                              // Round to nearest integer
-                              weight = value.roundToDouble();
-                            });
+                            age = int.tryParse(value) ?? age;
                           },
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Height Slider
-                  Row(
-                    children: [
-                      Text(
-                          'Height ($heightUnits): ${height.toStringAsFixed(0)}'),
-                      Expanded(
-                        child: Slider(
-                          value: height,
-                          min: heightMin,
-                          max: heightMax,
-                          divisions: (heightMax - heightMin).toInt(),
-                          label: height.toStringAsFixed(0),
+                        const SizedBox(height: 20),
+                        // Height Slider
+                        Row(
+                          children: [
+                            Text(
+                                'Weight ($weightUnits): ${weight.toStringAsFixed(0)}'),
+                            Expanded(
+                              child: Slider(
+                                value: weight,
+                                min: weightMin,
+                                max: weightMax,
+                                divisions: (weightMax - weightMin).toInt(),
+                                label: weight.toStringAsFixed(0),
+                                onChanged: (value) {
+                                  setState(() {
+                                    // Round to nearest integer
+                                    weight = value.roundToDouble();
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Height Slider
+                        Row(
+                          children: [
+                            Text(
+                                'Height ($heightUnits): ${height.toStringAsFixed(0)}'),
+                            Expanded(
+                              child: Slider(
+                                value: height,
+                                min: heightMin,
+                                max: heightMax,
+                                divisions: (heightMax - heightMin).toInt(),
+                                label: height.toStringAsFixed(0),
+                                onChanged: (value) {
+                                  setState(() {
+                                    height = value.roundToDouble();
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        Divider(),
+                        // Units Dropdown
+                        DropdownButtonFormField<String>(
+                          value: units,
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'metric', child: Text('Metric')),
+                            DropdownMenuItem(
+                                value: 'imperial', child: Text('Imperial')),
+                          ],
                           onChanged: (value) {
                             setState(() {
-                              height = value.roundToDouble();
+                              _changeUnits(value!);
                             });
                           },
+                          decoration: const InputDecoration(
+                            labelText: 'Units',
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Divider(),
-                  // Units Dropdown
-                  DropdownButtonFormField<String>(
-                    value: units,
-                    items: const [
-                      DropdownMenuItem(value: 'metric', child: Text('Metric')),
-                      DropdownMenuItem(
-                          value: 'imperial', child: Text('Imperial')),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _changeUnits(value!);
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Units',
+                      ],
+                    )
+                  else
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Age: ${user.userProfile!.age}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Weight: $weight $weightUnits',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Height: $height $heightUnits',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Units: ${user.userPreferences!.weightHeightUnits}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                      ],
                     ),
+                  //  const Spacer(),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: isEditing
+                        ? [
+                            ElevatedButton(
+                              onPressed: _saveProfile,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                              ),
+                              child: const Text(
+                                'Save',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: _toggleEditMode,
+                              child: const Text('Cancel'),
+                            ),
+                          ]
+                        : [
+                            ElevatedButton(
+                              onPressed: _toggleEditMode,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                              ),
+                              child: const Text(
+                                'Edit',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => _handleLogout(context),
+                              child: const Text(
+                                'Logout',
+                              ),
+                            ),
+                          ],
                   ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: 600,
+                        ),
+                        child: const CalorieGoalCard()),
+                  ),
+                  SizedBox(height: 20),
+
+                  Center(
+                    child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: 600,
+                        ),
+                        child: const AccountSettings()),
+                  ),
+                  SizedBox(height: 20),
                 ],
-              )
-            else
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Age: ${user.userProfile!.age}',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Weight: $weight $weightUnits',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Height: $height $heightUnits',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Units: ${user.userPreferences!.weightHeightUnits}',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                ],
-              ),
-            //  const Spacer(),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: isEditing
-                  ? [
-                      ElevatedButton(
-                        onPressed: _saveProfile,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                        ),
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: _toggleEditMode,
-                        child: const Text('Cancel'),
-                      ),
-                    ]
-                  : [
-                      ElevatedButton(
-                        onPressed: _toggleEditMode,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                        ),
-                        child: const Text(
-                          'Edit',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => _handleLogout(context),
-                        child: const Text(
-                          'Logout',
-                        ),
-                      ),
-                    ],
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: 600,
-                  ),
-                  child: const CalorieGoalCard()),
-            ),
+              ))),
+            )
           ],
         ),
       ),

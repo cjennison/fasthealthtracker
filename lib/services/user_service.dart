@@ -172,6 +172,19 @@ class UserService extends ChangeNotifier {
     }
   }
 
+  Future<void> changePassword(
+      String id, String currentPassword, String newPassword) async {
+    try {
+      final data = {
+        "currentPassword": currentPassword,
+        "newPassword": newPassword,
+      };
+      await apiUserService.changePassword(id, data);
+    } catch (e) {
+      rethrow; // Allow component to catch for error handling
+    }
+  }
+
   void logout() {
     _currentUser = null;
     LocalStorageService().clearAllData();

@@ -158,8 +158,11 @@ class _CalorieGoalCardState extends State<CalorieGoalCard> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    "Calorie Goal",
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
                   Text(
                     'Calorie Goal: $_calorieTarget kcal/day',
                     style: Theme.of(context).textTheme.bodyLarge,

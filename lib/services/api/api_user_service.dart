@@ -26,6 +26,13 @@ class ApiUserService {
     return baseApiService.handleApiResponse(response);
   }
 
+  Future<Map<String, dynamic>> changePassword(
+      String id, Map<String, dynamic> changePasswordPayload) async {
+    final response = await baseApiService.put(
+        "/auth/users/$id/password", changePasswordPayload);
+    return baseApiService.handleApiResponse(response);
+  }
+
   Future<Map<String, dynamic>> updateUserProfile(
       String id, Map<String, dynamic> userProfile) async {
     final response =
