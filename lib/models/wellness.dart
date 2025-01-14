@@ -11,21 +11,58 @@ int parseIntFromUnknown(dynamic value) {
 }
 
 class FoodItem {
+  final String id;
   final String name;
   final String units;
-  final int cloriesPerUnit;
+  final int caloriesPerUnit;
 
   FoodItem({
+    required this.id,
     required this.name,
     required this.units,
-    required this.cloriesPerUnit,
+    required this.caloriesPerUnit,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'caloriesPerUnit': caloriesPerUnit,
+      'units': units,
+    };
+  }
 
   static FoodItem getFoodItemFromJson(Map<String, dynamic> json) {
     return FoodItem(
+      id: json['_id'],
       name: json['name'],
       units: json['units'],
-      cloriesPerUnit: parseIntFromUnknown(json['cloriesPerUnit']),
+      caloriesPerUnit: parseIntFromUnknown(json['cloriesPerUnit']),
+    );
+  }
+}
+
+class FoodItemQuantity {
+  final int quantity;
+  final FoodItem foodItem;
+
+  FoodItemQuantity({
+    required this.quantity,
+    required this.foodItem,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'quantity': quantity,
+      'foodItem': foodItem.toJson(),
+    };
+  }
+
+  static FoodItemQuantity getFoodItemQuantityFromJson(
+      Map<String, dynamic> json) {
+    return FoodItemQuantity(
+      quantity: parseIntFromUnknown(json['quantity']),
+      foodItem: FoodItem.getFoodItemFromJson(json['foodItem']),
     );
   }
 }
@@ -35,14 +72,14 @@ class FoodEntry {
   final String name;
   final String quantity;
   final int calories;
-  final List<FoodItem> foodItems;
+  final List<FoodItemQuantity> foodItemQuantities;
 
   FoodEntry({
     required this.id,
     required this.name,
     required this.quantity,
     required this.calories,
-    required this.foodItems,
+    required this.foodItemQuantities,
   });
 
   Map<String, dynamic> toJson() {
@@ -59,8 +96,8 @@ class FoodEntry {
       name: json['name'],
       quantity: json['quantity'],
       calories: parseIntFromUnknown(json['calories']),
-      foodItems: (json['foodItems'] as List)
-          .map((item) => FoodItem.getFoodItemFromJson(item))
+      foodItemQuantities: (json['foodItemQuantities'] as List)
+          .map((item) => FoodItemQuantity.getFoodItemQuantityFromJson(item))
           .toList(),
     );
   }

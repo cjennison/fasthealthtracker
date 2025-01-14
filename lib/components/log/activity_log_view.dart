@@ -16,7 +16,8 @@ class ActivityLogView extends StatelessWidget {
         DateFormat.yMMMMd().format(wellnessService.selectedDate);
 
     String generateFoodSubText(FoodEntry foodEntry) {
-      List<FoodItem> foodItems = foodEntry.foodItems;
+      List<FoodItem> foodItems =
+          foodEntry.foodItemQuantities.map((item) => item.foodItem).toList();
       String foodListString = "";
       if (foodItems.isNotEmpty) {
         foodListString = foodItems.map((item) => item.name).join(", ");

@@ -104,6 +104,8 @@ class WellnessService extends ChangeNotifier {
       final wellnessDataJson = await apiWellnessService.getWellnessDataByDate(
           user.id, formattedDate);
 
+      print("Wellness Data: $wellnessDataJson");
+
       DateWellnessData wellnessData =
           DateWellnessData.getWellnessDataFromJson(wellnessDataJson);
 
@@ -111,6 +113,8 @@ class WellnessService extends ChangeNotifier {
       return wellnessData;
     } catch (e) {
       print(e);
+
+      print("Creating new wellness data for $formattedDate");
       // Create a new DateWellnessData object for the date
       final newWellnessData = await apiWellnessService.createWellnessData(
           UserService().currentUser!.id, formattedDate, 0);
