@@ -43,7 +43,7 @@ class FoodItem {
 }
 
 class FoodItemQuantity {
-  final int quantity;
+  final String quantity;
   final FoodItem foodItem;
 
   FoodItemQuantity({
@@ -61,7 +61,7 @@ class FoodItemQuantity {
   static FoodItemQuantity getFoodItemQuantityFromJson(
       Map<String, dynamic> json) {
     return FoodItemQuantity(
-      quantity: parseIntFromUnknown(json['quantity']),
+      quantity: json['quantity'],
       foodItem: FoodItem.getFoodItemFromJson(json['foodItem']),
     );
   }

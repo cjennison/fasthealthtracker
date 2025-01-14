@@ -76,10 +76,30 @@ class ApiWellnessService {
     return baseApiService.handleApiResponse(response);
   }
 
-  // Add an exercise entry to wellness data
+  // Delete an exercise entry from wellness data
   Future<Map<String, dynamic>> deleteExerciseEntry(
       String wellnessDataId, String exerciseEntryId) async {
     final endpoint = "/wellness/$wellnessDataId/exercise/$exerciseEntryId";
+    final response = await baseApiService.delete(endpoint);
+    return baseApiService.handleApiResponse(response);
+  }
+
+  // Update food item quantity of an entry
+  Future<Map<String, dynamic>> updateFoodItemQuantity(
+      String foodEntryId, String foodItemId,
+      {required String quantity}) async {
+    final endpoint =
+        "/wellness/food-entries/$foodEntryId/food-items/$foodItemId/quantity";
+    final response =
+        await baseApiService.put(endpoint, {"newQuantity": quantity});
+    return baseApiService.handleApiResponse(response);
+  }
+
+  // Delete food item quantity of an entry
+  Future<Map<String, dynamic>> deleteFoodItemQuantity(
+      String foodEntryId, String foodItemId) async {
+    final endpoint =
+        "/wellness/food-entries/$foodEntryId/food-items/$foodItemId/quantity";
     final response = await baseApiService.delete(endpoint);
     return baseApiService.handleApiResponse(response);
   }

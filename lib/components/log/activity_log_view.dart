@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/components/log/food_entry_row.dart';
 import 'package:fasthealthcheck/models/wellness.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,17 +15,6 @@ class ActivityLogView extends StatelessWidget {
 
     String formattedDate =
         DateFormat.yMMMMd().format(wellnessService.selectedDate);
-
-    String generateFoodSubText(FoodEntry foodEntry) {
-      List<FoodItem> foodItems =
-          foodEntry.foodItemQuantities.map((item) => item.foodItem).toList();
-      String foodListString = "";
-      if (foodItems.isNotEmpty) {
-        foodListString = foodItems.map((item) => item.name).join(", ");
-        return "$foodListString (${foodEntry.quantity})";
-      }
-      return "${foodEntry.quantity} of ${foodEntry.name}";
-    }
 
     String generateExerciseSubText(ExerciseEntry exerciseEntry) {
       return "${exerciseEntry.type} (${exerciseEntry.intensity}, ${exerciseEntry.duration} min)";
@@ -81,24 +71,19 @@ class ActivityLogView extends StatelessWidget {
                               ),
                             ],
                           ),
-                          ...foodEntries.asMap().entries.map((entry) {
+                          ...foodEntries.asMap().entries.map((
+                            entry,
+                          ) {
                             final index = entry.key;
                             final foodEntry = entry.value;
-                            return _buildLogEntry(
-                              context,
-                              isSmallScreen,
-                              icon: Icons.restaurant,
-                              iconColor: Colors.orange,
-                              name: foodEntry.name,
-                              subText: generateFoodSubText(foodEntry),
-                              calories: foodEntry.calories,
-                              onDelete: () {
-                                _showDeleteConfirmationDialog(context, () {
-                                  Provider.of<WellnessService>(context,
-                                          listen: false)
-                                      .deleteFoodEntryByIndex(index);
-                                });
-                              },
+                            return FoodEntryWithItems(
+                              context: context,
+                              foodEntry: foodEntry,
+                              index: index,
+                              isSmallScreen: isSmallScreen,
+                              buildLogEntry: _buildLogEntry,
+                              showDeleteConfirmationDialog:
+                                  _showDeleteConfirmationDialog,
                             );
                           }),
                           ...exerciseEntries.asMap().entries.map((entry) {
@@ -112,6 +97,8 @@ class ActivityLogView extends StatelessWidget {
                               name: exerciseEntry.name,
                               subText: generateExerciseSubText(exerciseEntry),
                               calories: exerciseEntry.caloriesBurned,
+                              type: 'exercise',
+                              onEdit: () {},
                               onDelete: () {
                                 _showDeleteConfirmationDialog(context, () {
                                   Provider.of<WellnessService>(context,
@@ -140,6 +127,8 @@ class ActivityLogView extends StatelessWidget {
       required String name,
       required String subText,
       required int calories,
+      required String type,
+      required VoidCallback onEdit,
       required VoidCallback onDelete}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -174,6 +163,11 @@ class ActivityLogView extends StatelessWidget {
                 "$calories",
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
+              if (type == "food")
+                IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.grey),
+                    onPressed: onEdit),
+              if (type == "exercise") SizedBox(width: 40),
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: onDelete,

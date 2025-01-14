@@ -212,7 +212,6 @@ class WellnessService extends ChangeNotifier {
     }
   }
 
-  //
   void deleteExerciseEntryByIndex(int index) {
     ExerciseEntry exerciseEntry =
         currentDateWellnessData.exerciseEntries[index];
@@ -225,6 +224,57 @@ class WellnessService extends ChangeNotifier {
     currentDateWellnessData.exerciseEntries.removeAt(index);
 
     notifyListeners();
+  }
+
+  Future<void> updateFoodItemQuantity(String wellnessDataId, String foodEntryId,
+      String foodItemId, String newQuantity, int entryIndex) async {
+    try {
+      final updatedFoodEntryJson =
+          await apiWellnessService.updateFoodItemQuantity(
+        foodEntryId,
+        foodItemId,
+        quantity: newQuantity,
+      );
+      final updatedFoodEntry =
+          FoodEntry.getFoodEntryFromJson(updatedFoodEntryJson);
+
+      // Replace the old entry with the updated one
+      currentDateWellnessData.foodEntries[entryIndex] = updatedFoodEntry;
+      notifyListeners();
+    } catch (e) {
+      print("Error updating food item quantity: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteFoodItemQuantity(String wellnessDataId, String foodEntryId,
+      String foodItemId, int entryIndex) async {
+    try {
+      final updatedFoodEntryJson =
+          await apiWellnessService.deleteFoodItemQuantity(
+        foodEntryId,
+        foodItemId,
+      );
+
+      // If this was the last food item quantity, delete the food entry
+      //  This is determine by the food entry having no food item quantities
+      if (updatedFoodEntryJson['foodItemQuantities'].isEmpty) {
+        // This is not amazing, but it works
+        //    This is a chain of async operations that are not awaited
+        deleteFoodEntryByIndex(entryIndex);
+        return;
+      }
+
+      final updatedFoodEntry =
+          FoodEntry.getFoodEntryFromJson(updatedFoodEntryJson);
+
+      // Replace the old entry with the updated one
+      currentDateWellnessData.foodEntries[entryIndex] = updatedFoodEntry;
+      notifyListeners();
+    } catch (e) {
+      print("Error deleting food item quantity: $e");
+      rethrow;
+    }
   }
 
   void clearWellnessData() {
