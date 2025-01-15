@@ -174,6 +174,22 @@ class WellnessService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateFoodEntry(String wellnessDataId, String foodEntryId,
+      int newCalories, int entryIndex) async {
+    // Update in API (Asynchronous operation)
+    final data = await apiWellnessService
+        .updateFoodEntry(currentDateWellnessData.id, foodEntryId, {
+      'calories': newCalories,
+    });
+
+    final updatedFoodEntry = FoodEntry.getFoodEntryFromJson(data);
+
+    // Update local Entry
+    currentDateWellnessData.foodEntries[entryIndex] = updatedFoodEntry;
+
+    notifyListeners();
+  }
+
   void deleteFoodEntryByIndex(int index) {
     FoodEntry foodEntry = currentDateWellnessData.foodEntries[index];
 

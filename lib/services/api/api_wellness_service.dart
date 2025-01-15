@@ -60,6 +60,14 @@ class ApiWellnessService {
     return baseApiService.handleApiResponse(response);
   }
 
+  // Update a food entry to wellness data
+  Future<Map<String, dynamic>> updateFoodEntry(String wellnessDataId,
+      String foodEntryId, Map<String, dynamic> data) async {
+    final endpoint = "/wellness/$wellnessDataId/food/$foodEntryId";
+    final response = await baseApiService.put(endpoint, data);
+    return baseApiService.handleApiResponse(response);
+  }
+
   // Add an exercise entry to wellness data
   Future<Map<String, dynamic>> addExerciseEntry(
       String wellnessDataId, ExerciseEntryPayload data) async {
