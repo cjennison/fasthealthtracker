@@ -1,7 +1,6 @@
 import 'package:fasthealthcheck/services/api/api_user_service.dart';
 import 'package:fasthealthcheck/services/service_locator.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ResetPasswordView extends StatefulWidget {
   const ResetPasswordView({super.key});

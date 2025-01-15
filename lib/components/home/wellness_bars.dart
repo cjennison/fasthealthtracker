@@ -247,9 +247,13 @@ class WellnessBars extends StatelessWidget {
                           ? () {
                               Provider.of<WellnessService>(context,
                                       listen: false)
-                                  .removeWater();
+                                  .setWater(index);
                             }
-                          : null,
+                          : () {
+                              Provider.of<WellnessService>(context,
+                                      listen: false)
+                                  .setWater(index + 1);
+                            },
                       child: CircleAvatar(
                         backgroundColor:
                             isFilled ? Colors.blue : Colors.grey[300],
@@ -265,7 +269,7 @@ class WellnessBars extends StatelessWidget {
                     GestureDetector(
                       onTap: () {
                         Provider.of<WellnessService>(context, listen: false)
-                            .removeWater();
+                            .setWater(totalGlasses - 1);
                       },
                       child: CircleAvatar(
                         backgroundColor: Colors.green,

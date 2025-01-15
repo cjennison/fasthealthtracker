@@ -81,20 +81,26 @@ class WellnessService extends ChangeNotifier {
 
   int get currentStreak => streak;
 
-  Future<void> initializeWellnessData() async {
+  Future<DateWellnessData> initializeWellnessData() async {
     print("Initializing wellness data for $_selectedDate");
-    await getOrCreateDateWellnessData(_selectedDate);
+    DateWellnessData wellnessData =
+        await getOrCreateDateWellnessData(_selectedDate);
 
     final streakData = await apiWellnessService
         .getWellnessStreak(UserService().currentUser!.id);
     streak = streakData['streak'];
 
     notifyListeners();
+
+    return wellnessData;
   }
 
-  Future<void> refreshWellnessData() async {
-    await getOrCreateDateWellnessData(_selectedDate);
+  Future<DateWellnessData> refreshWellnessData() async {
+    DateWellnessData wellnessData =
+        await getOrCreateDateWellnessData(_selectedDate);
     notifyListeners();
+
+    return wellnessData;
   }
 
   Future<DateWellnessData> getOrCreateDateWellnessData(DateTime date) async {
@@ -162,14 +168,8 @@ class WellnessService extends ChangeNotifier {
     }
   }
 
-  void addWater() {
-    currentDateWellnessData.glassesOfWater++;
-    updateWellnessData(currentDateWellnessData);
-    notifyListeners();
-  }
-
-  void removeWater() {
-    currentDateWellnessData.glassesOfWater--;
+  void setWater(int? glasses) {
+    currentDateWellnessData.glassesOfWater = glasses ?? 0;
     updateWellnessData(currentDateWellnessData);
     notifyListeners();
   }

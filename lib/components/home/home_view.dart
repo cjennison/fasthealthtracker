@@ -1,6 +1,7 @@
 import 'package:fasthealthcheck/components/home/home_button_bar.dart';
 import 'package:fasthealthcheck/components/home/user_summary_widget.dart';
 import 'package:fasthealthcheck/components/home/wellness_bars.dart';
+import 'package:fasthealthcheck/models/wellness.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fasthealthcheck/services/user_service.dart';
@@ -28,6 +29,7 @@ class _HomeViewState extends State<HomeView> {
     if (userService.currentUser != null) {
       final wellnessService =
           Provider.of<WellnessService>(context, listen: false);
+
       await wellnessService.initializeWellnessData();
       setState(() {
         isLoading = false;
@@ -57,7 +59,10 @@ class _HomeViewState extends State<HomeView> {
     }
 
     void onWaterTap() {
-      Provider.of<WellnessService>(context, listen: false).addWater();
+      final wellnessService =
+          Provider.of<WellnessService>(context, listen: false);
+      wellnessService
+          .setWater(wellnessService.currentDateWellnessData.glassesOfWater + 1);
     }
 
     return Scaffold(body: LayoutBuilder(builder: (context, constraints) {
