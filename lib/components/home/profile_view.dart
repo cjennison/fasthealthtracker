@@ -1,5 +1,6 @@
 import 'package:fasthealthcheck/components/home/profile/account_settings.dart';
 import 'package:fasthealthcheck/components/shared/calorie_goal_card.dart';
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:fasthealthcheck/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -110,9 +111,8 @@ class _ProfileViewState extends State<ProfileView> {
       );
       userService.updateUserPreferences(currentUser.id, updatedPreferences);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
-      );
+      showSnackbar(
+          context, 'Profile updated successfully!', SnackbarType.success);
     }
 
     setState(() {

@@ -1,9 +1,9 @@
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:fasthealthcheck/constants/error_codes.dart';
 import 'package:fasthealthcheck/navigator_key.dart';
 import 'package:fasthealthcheck/services/api_service.dart';
 import 'package:fasthealthcheck/services/service_locator.dart';
 import 'package:fasthealthcheck/services/user_service.dart';
-import 'package:flutter/material.dart';
 
 class SessionManager {
   final UserService userService = getIt<UserService>();
@@ -22,11 +22,9 @@ class SessionManager {
       (route) => false, // Remove all previous routes
     );
 
-    // Show snackbar or any other notification to inform the user
-    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-      SnackBar(
-          content:
-              Text(errorMessages[ErrorCodes.invalidToken].userFriendlyMessage)),
-    );
+    showSnackbar(
+        navigatorKey.currentContext!,
+        errorMessages[ErrorCodes.invalidToken].userFriendlyMessage,
+        SnackbarType.error);
   }
 }

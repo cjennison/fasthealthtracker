@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fasthealthcheck/services/user_service.dart';
@@ -21,13 +22,11 @@ class _VerificationViewState extends State<VerificationView> {
       setState(() {
         isCodeInputVisible = true;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Verification email sent successfully!')),
-      );
+      showSnackbar(context, 'Verification email sent successfully!',
+          SnackbarType.success);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send verification email: $e')),
-      );
+      showSnackbar(
+          context, 'Failed to send verification email: $e', SnackbarType.error);
     }
   }
 
@@ -35,9 +34,9 @@ class _VerificationViewState extends State<VerificationView> {
     final userService = Provider.of<UserService>(context, listen: false);
     final code = _codeController.text.trim();
     if (code.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Code must be 6 characters long')),
-      );
+      showSnackbar(
+          context, 'Code must be 6 characters long', SnackbarType.info);
+
       return;
     }
 
@@ -47,14 +46,11 @@ class _VerificationViewState extends State<VerificationView> {
 
     try {
       await userService.verifyUser(userId, email, code);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Email verified successfully!')),
-      );
+      showSnackbar(context, 'Email verified successfully!', SnackbarType.info);
+
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Verification failed: $e')),
-      );
+      showSnackbar(context, 'Verification failed: $e', SnackbarType.error);
     } finally {
       setState(() {
         isSubmitting = false;

@@ -1,4 +1,5 @@
 import 'package:fasthealthcheck/components/onboarding/onboarding_lifestyle_view.dart';
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fasthealthcheck/services/user_service.dart';
@@ -134,13 +135,10 @@ class _NewUserViewState extends State<NewUserView> {
         setState(() {
           _isRegistering = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                'An error occurred during registration. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showSnackbar(
+            context,
+            'An error occurred during registration. Please try again.',
+            SnackbarType.error);
       }
     }
   }

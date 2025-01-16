@@ -1,5 +1,6 @@
 // onboarding_lifestyle_view.dart
 import 'package:fasthealthcheck/components/onboarding/onboarding_calorie_goal_view.dart';
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:fasthealthcheck/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -91,7 +92,6 @@ class _OnboardingLifestyleViewState extends State<OnboardingLifestyleView> {
 
   @override
   Widget build(BuildContext context) {
-    print("Weight: $weight, Height: $height, Units: $units");
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tell us about yourself'),
@@ -231,13 +231,20 @@ class _OnboardingLifestyleViewState extends State<OnboardingLifestyleView> {
         userService.currentUser!.userPreferences!.copyWith(
       weightHeightUnits: units,
     );
-    await userService.updateUserPreferences(
-        userService.currentUser!.id, updatedPreferences);
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => const OnboardingCalorieGoalView()),
-    );
+    try {
+      await userService.updateUserPreferences(
+          userService.currentUser!.id, updatedPreferences);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const OnboardingCalorieGoalView()),
+      );
+    } catch (e) {
+      print(e);
+      showSnackbar(context, "Something went wrong updating your profile",
+          SnackbarType.error);
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -38,12 +39,8 @@ class _LoginViewState extends State<LoginView> {
       } catch (e) {
         print(e);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Invalid Email or Password. Please try again."),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showSnackbar(context, "Invalid Email or Password. Please try again.",
+            SnackbarType.error);
 
         setState(() {
           isLoggingIn = false;

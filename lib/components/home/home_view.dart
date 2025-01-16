@@ -1,6 +1,7 @@
 import 'package:fasthealthcheck/components/home/home_button_bar.dart';
 import 'package:fasthealthcheck/components/home/user_summary_widget.dart';
 import 'package:fasthealthcheck/components/home/wellness_bars.dart';
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:fasthealthcheck/models/wellness.dart';
 import 'package:flutter/material.dart';
 
@@ -26,15 +27,22 @@ class _HomeViewState extends State<HomeView> {
   Future<void> initializeData() async {
     final userService = Provider.of<UserService>(context, listen: false);
 
-    if (userService.currentUser != null) {
-      final wellnessService =
-          Provider.of<WellnessService>(context, listen: false);
+    try {
+      if (userService.currentUser != null) {
+        final wellnessService =
+            Provider.of<WellnessService>(context, listen: false);
 
-      await wellnessService.initializeWellnessData();
-      setState(() {
-        isLoading = false;
-      });
-    } else {
+        await wellnessService.initializeWellnessData();
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        // Something went wrong, go back to the splash screen
+        Navigator.pushReplacementNamed(context, '/splash');
+      }
+    } catch (e) {
+      print(e);
+      showSnackbar(context, "Something went wrong", SnackbarType.error);
       // Something went wrong, go back to the splash screen
       Navigator.pushReplacementNamed(context, '/splash');
     }

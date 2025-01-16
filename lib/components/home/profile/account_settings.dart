@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:fasthealthcheck/services/api/classes/api_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -32,9 +33,8 @@ class _AccountSettingsState extends State<AccountSettings> {
     try {
       await userService.changePassword(userId!, _currentPasswordController.text,
           _newPasswordController.text);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password updated successfully!')),
-      );
+      showSnackbar(
+          context, 'Password updated successfully!', SnackbarType.info);
 
       // Reset all controller values
       _currentPasswordController.clear();

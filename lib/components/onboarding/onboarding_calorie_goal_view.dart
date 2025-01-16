@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:fasthealthcheck/models/user.dart';
 import 'package:fasthealthcheck/services/user_service.dart';
 import 'package:flutter/material.dart';
@@ -54,13 +55,19 @@ class _OnboardingCalorieGoalView extends State<OnboardingCalorieGoalView> {
   }
 
   Future<void> getCalorieTarget(String userId) async {
-    int value = await Provider.of<UserService>(context, listen: false)
-        .getCalorieTarget(userId, _activityLevel);
+    try {
+      int value = await Provider.of<UserService>(context, listen: false)
+          .getCalorieTarget(userId, _activityLevel);
 
-    setState(() {
-      isLoading = false;
-      _calorieTarget = value;
-    });
+      setState(() {
+        isLoading = false;
+        _calorieTarget = value;
+      });
+    } catch (e) {
+      print(e);
+      showSnackbar(
+          context, 'Something went wrong getting Calories', SnackbarType.error);
+    }
   }
 
   Future<void> onFinish() async {
@@ -71,8 +78,14 @@ class _OnboardingCalorieGoalView extends State<OnboardingCalorieGoalView> {
       activityLevel: _activityLevel,
     );
 
-    await userService.updateUserProfile(user.id, userProfile);
-    Navigator.pushNamedAndRemoveUntil(context, '/app', (route) => false);
+    try {
+      await userService.updateUserProfile(user.id, userProfile);
+      Navigator.pushNamedAndRemoveUntil(context, '/app', (route) => false);
+    } catch (e) {
+      print(e);
+      showSnackbar(context, 'Something went wrong', SnackbarType.error);
+      return;
+    }
   }
 
   void _openSliderDialog() {

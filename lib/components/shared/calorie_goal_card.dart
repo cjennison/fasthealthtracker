@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:fasthealthcheck/models/user.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -86,11 +87,10 @@ class _CalorieGoalCardState extends State<CalorieGoalCard> {
         isSaving = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text('Calorie Goal updated successfully to $_calorieTarget!')),
-      );
+      showSnackbar(
+          context,
+          'Calorie Goal updated successfully to $_calorieTarget!',
+          SnackbarType.success);
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:fasthealthcheck/components/utils/show_snackbar.dart';
 import 'package:fasthealthcheck/constants/error_codes.dart';
 import 'package:fasthealthcheck/models/wellness.dart';
 import 'package:fasthealthcheck/services/api/classes/api_exception.dart';
@@ -216,13 +217,11 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
         durationMinutes,
         calories, // can be null if showCaloriesSlider is false
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              "Added ${newEntry.name} with calories: ${newEntry.caloriesBurned} to exercise log"),
-          backgroundColor: Colors.green,
-        ),
-      );
+
+      showSnackbar(
+          context,
+          "Added ${newEntry.name} with calories: ${newEntry.caloriesBurned} to exercise log",
+          SnackbarType.success);
 
       Navigator.pop(context);
     } catch (err) {
@@ -233,19 +232,11 @@ class _ExerciseInputViewState extends State<ExerciseInputView> {
           });
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Failed to add exercise: ${err.message}"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showSnackbar(context, "Failed to add exercise: ${err.message}",
+            SnackbarType.error);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Failed to add exercise. Please try again."),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showSnackbar(context, "Failed to add exercise. Please try again.",
+            SnackbarType.error);
       }
     } finally {
       setState(() {
